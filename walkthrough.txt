@@ -1,0 +1,70 @@
+Quid Notebook: Technical Walkthrough
+Project Overview: Quid Notebook is an intelligent knowledge management platform that transforms static documents, audio, and web content into an interactive, conversational AI environment. It leverages a modern AI stack to provide grounded responses with precise citations and automated podcast synthesis.
+
+1. Multi-Modal Ingestion Pipeline
+The ingestion layer is responsible for normalizing unstructured data into a uniform format that the LLM can reason over.
+
+Document Processing
+Structural Extraction: Beyond simple text scraping, the system identifies page boundaries, headers, and character offsets. This ensures that when a user asks for a source, the system can point to the exact page and paragraph.
+
+Format Agnostic: Support for PDF, TXT, and Markdown ensures compatibility with academic papers, raw notes, and technical documentation.
+
+Audio & Video Intelligence
+Diarized Transcription: Utilizing AssemblyAI, the system doesn't just "hear" words; it identifies who said them. This turns a recorded meeting or a YouTube video into a structured dialogue transcript.
+
+Temporal Metadata: Every snippet of text is tied to a timestamp, allowing for "jump-to-time" citations in the UI.
+
+Web Intelligence
+Noise Reduction: Using Firecrawl, the system bypasses DOM clutter (ads, navbars, footers) to extract only the core "signal" of an article.
+
+Contextual Chunking: Text is segmented into overlapping blocks to ensure that semantic meaning isn't lost at the "cuts" between chunks.
+
+2. Semantic Memory & Retrieval
+Once data is ingested, it must be indexed for near-instantaneous retrieval based on meaning rather than keywords.
+
+Embedding Strategy
+BGE Model Integration: We use the BAAI General Embedding (BGE) model to convert text into high-dimensional vectors. These vectors represent the "essence" of the information, allowing the system to find relevant facts even if the user uses different terminology than the source.
+
+Batch Optimization: To handle large-scale libraries, embeddings are generated in batches to maximize throughput.
+
+Vector Storage (Milvus)
+Milvus Lite Architecture: We utilize an embedded vector database for low-latency similarity searches.
+
+Hybrid Metadata: Every vector is stored alongside its "parent" metadata (source URL, page number, speaker name), which is critical for the "Source Transparency" feature of Quid Notebook.
+
+3. The Contextual Conversation Layer
+This layer bridges the gap between raw data retrieval and human-like interaction.
+
+Memory Layer (Zep)
+Long-term Context: Unlike standard RAG which often "forgets" previous turns, Quid Notebook uses Zep to maintain a persistent memory of the user’s goals, preferences, and session history.
+
+Dynamic Source Tracking: The system remembers which documents have been discussed recently to prioritize them in follow-up queries.
+
+RAG Strategy (Retrieval-Augmented Generation)
+Grounded Generation: The LLM is strictly instructed to only answer based on the retrieved context.
+
+Inline Citations: Every claim made by the AI is tagged with a unique identifier linked back to the specific chunk in the Milvus database.
+
+4. The "NotebookLM" Special: Audio Synthesis
+The standout feature of Quid Notebook is the ability to "listen" to your documents through an AI-generated podcast.
+
+Podcast Scripting
+Persona-Based Dialogue: The system generates a JSON-structured script featuring two distinct personas (e.g., a "Host" and an "Expert").
+
+Multi-Style Formatting: Users can toggle between "Deep Dive," "Summary," or "Debate" formats to change the tone of the generated audio.
+
+Text-to-Speech (Kokoro TTS)
+High-Fidelity Audio: We use Kokoro TTS for its ability to produce human-like prosody and emotion at a high sample rate (24kHz).
+
+Stereo Stitching: Individual segments of dialogue are generated separately and then programmatically stitched into a single MP3/WAV file, ensuring a seamless listening experience.
+
+System Summary
+The Quid Notebook architecture represents a modular approach to AI knowledge management:
+
+Ingest: Transform any medium into clean, structured text.
+
+Index: Create a searchable semantic map using Milvus and BGE.
+
+Interact: Provide cited, grounded answers with persistent session memory via Zep.
+
+Synthesize: Generate high-quality audio deep-dives for passive learning.
