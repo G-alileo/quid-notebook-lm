@@ -80,10 +80,19 @@ NotebookLM Clone is a document-grounded AI assistant that allows you to:
 2. **Set up environment variables:**
    Create a `.env` file with your API keys as specified in `.env.example` file:
    ```env
-   OPENAI_API_KEY=<YOUR_OPENAI_API_KEY>
-   ASSEMBLYAI_API_KEY=<YOUR_ASSEMBLYAI_API_KEY>
-   FIRECRAWL_API_KEY=<YOUR_FIRECRAWL_API_KEY>
-   ZEP_API_KEY=<YOUR_ZEP_API_KEY>
+OPENAI_API_KEY=
+ASSEMBLYAI_API_KEY=
+FIRECRAWL_API_KEY=
+ZEP_API_KEY=
+MILVUS_CLOUD_ENDPOINT=
+MILVUS_CLOUD_TOKEN=
+USE_MILVUS_CLOUD=true
+
+LLM_PROVIDER=deepseek
+DEEPSEEK_API_KEY=
+GEMINI_API=
+
+
    ```
 
    Get the API keys here:
