@@ -1,0 +1,22 @@
+Source: Personal notes from "The Coffee Podcast" Episode 212 - Interview with Dr. Sridevi Krishnan, food scientist at UC Davis Coffee Center
+
+Key takeaways:
+
+- The UC Davis Coffee Center is one of the few academic institutions in the world dedicated to coffee science. They study everything from bean genetics to sensory perception.
+
+- Dr. Krishnan explained that "coffee flavor" is actually made up of over 1,000 volatile compounds. Most of them are created during roasting, not present in the raw green bean.
+
+- There's a concept called "quaker beans" — underdeveloped coffee seeds that don't roast properly and create a peanutty, flat taste in the final cup. Professional roasters sort these out optically.
+
+- Interesting stat she mentioned: 70% of people who describe themselves as "non-coffee drinkers" actually consume caffeine regularly through tea, soda, or energy drinks. The aversion is often to bitterness, not caffeine itself.
+
+- She talked about the science of decaffeination. The Swiss Water Process uses osmosis and activated charcoal filters — no chemicals. The CO2 method is considered the gold standard for preserving flavor. The most common (and cheapest) method uses methylene chloride or ethyl acetate as solvents.
+
+- On the topic of "coffee makes you dehydrated" — she called this a myth. At typical consumption levels, the mild diuretic effect of caffeine is offset by the fluid in the drink itself. Net hydration effect is roughly neutral.
+
+- The center is currently researching why some people experience GI distress from coffee. Early findings suggest it's not the acidity (cold brew is low-acid but still causes issues for some people) — it may be related to certain peptides that stimulate gastric acid secretion.
+
+- Lastly, she touched on AI in coffee: some roasters are now using machine learning models trained on bean moisture, density, and color data to automate roast profiling. She sees this as the future of consistency in specialty roasting.
+
+Word count: ~290 words
+Format: Unstructured notes, no headings

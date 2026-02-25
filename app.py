@@ -860,21 +860,30 @@ def generate_podcast(selected_source: str, podcast_style: str, podcast_length: s
                     )
                     
                     st.success(f"✅ Generated {len(audio_files)} audio files!")
-                    
+
+                    outputs_dir = Path("outputs")
+                    outputs_dir.mkdir(exist_ok=True)
+                    ts = int(time.time())
+
                     st.markdown("### 🎙️ Generated Podcast")
                     for audio_file in audio_files:
                         file_name = Path(audio_file).name
                         
                         if "complete_podcast" in file_name:
                             st.audio(audio_file, format="audio/wav")
-                            
-                            with open(audio_file, "rb") as f:
-                                st.download_button(
-                                    label="📥 Download Complete Podcast",
-                                    data=f.read(),
-                                    file_name=f"complete_podcast_{int(time.time())}.wav",
-                                    mime="audio/wav"
-                                )
+
+                            saved_audio_path = outputs_dir / f"podcast_{ts}.wav"
+                            with open(audio_file, "rb") as src:
+                                audio_bytes = src.read()
+                            saved_audio_path.write_bytes(audio_bytes)
+                            logger.info(f"Podcast audio saved to {saved_audio_path}")
+
+                            st.download_button(
+                                label="📥 Download Complete Podcast",
+                                data=audio_bytes,
+                                file_name=f"complete_podcast_{ts}.wav",
+                                mime="audio/wav"
+                            )
                 
                 except Exception as e:
                     st.error(f"❌ Audio generation failed: {str(e)}")
@@ -910,10 +919,17 @@ def generate_podcast(selected_source: str, podcast_style: str, podcast_length: s
                     st.markdown(f'<div style="background: #166534; padding: 10px; border-radius: 5px; margin: 5px 0;"><strong>👨 {speaker}:</strong> {dialogue}</div>', unsafe_allow_html=True)
         
         script_json = podcast_script.to_json()
+
+        outputs_dir = Path("outputs")
+        outputs_dir.mkdir(exist_ok=True)
+        saved_json_path = outputs_dir / f"podcast_script_{int(time.time())}.json"
+        saved_json_path.write_text(script_json, encoding="utf-8")
+        logger.info(f"Podcast script saved to {saved_json_path}")
+
         st.download_button(
             label="📥 Download Script (JSON)",
             data=script_json,
-            file_name=f"podcast_script_{int(time.time())}.json",
+            file_name=saved_json_path.name,
             mime="application/json"
         )
     

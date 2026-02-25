@@ -117,12 +117,23 @@ class DocumentProcessor:
     
     def _process_text_file(self, file_path: Path) -> List[DocumentChunk]:
         try:
-            with open(file_path, 'r', encoding='utf-8') as file:
-                content = file.read()
-            
+            encoding_used = 'utf-8'
+            for enc in ('utf-8', 'cp1252', 'latin-1'):
+                try:
+                    with open(file_path, 'r', encoding=enc) as file:
+                        content = file.read()
+                    encoding_used = enc
+                    break
+                except UnicodeDecodeError:
+                    continue
+            else:
+                with open(file_path, 'r', encoding='utf-8', errors='replace') as file:
+                    content = file.read()
+                encoding_used = 'utf-8 (lossy)'
+
             metadata = {
                 'file_size': file_path.stat().st_size,
-                'encoding': 'utf-8',
+                'encoding': encoding_used,
                 'processed_at': datetime.now().isoformat()
             }
             

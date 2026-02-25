@@ -45,7 +45,7 @@ class PodcastScriptGenerator:
             provider=provider,
             model_name=model_name,
             temperature=0.7,
-            max_tokens=4000,
+            max_tokens=2500,
             fallback_api_key=fallback_api_key,
             fallback_provider=fallback_provider,
             fallback_model=fallback_model,
@@ -132,54 +132,33 @@ class PodcastScriptGenerator:
     ) -> Dict[str, Any]:
 
         style_prompts = {
-            "conversational": "Create a natural, friendly conversation between two hosts discussing the document. They should build on each other's points and occasionally ask clarifying questions.",
-            "educational": "Create an educational discussion where one speaker explains concepts and the other asks thoughtful questions to help clarify complex topics for listeners.",
-            "interview": "Create an interview format where Speaker 1 acts as the interviewer asking questions and Speaker 2 provides detailed explanations from the document.",
-            "debate": "Create a thoughtful discussion where speakers present different perspectives on the topics, maintaining respect while exploring various viewpoints."
+            "conversational": "Natural, friendly conversation. Hosts build on each other's points.",
+            "educational": "One speaker explains, the other asks clarifying questions.",
+            "interview": "Speaker 1 interviews; Speaker 2 explains from the document.",
+            "debate": "Speakers explore different perspectives respectfully."
         }
 
-        duration_guidelines = {
-            "5 minutes": "Keep the conversation concise, focusing on 3-4 main points with brief explanations.",
-            "10 minutes": "Cover the key topics thoroughly with good explanations and examples.",
-            "15 minutes": "Provide comprehensive coverage with detailed discussions and multiple examples.",
-            "20 minutes": "Create an in-depth exploration with extensive analysis and supporting details."
+        duration_lines = {
+            "5 minutes": "~10-14 exchanges, 3-4 key points.",
+            "10 minutes": "~20-28 exchanges, cover key topics with examples.",
+            "15 minutes": "~30-40 exchanges, detailed coverage.",
+            "20 minutes": "~40-52 exchanges, in-depth analysis."
         }
 
         style_instruction = style_prompts.get(podcast_style, style_prompts["conversational"])
-        duration_guide = duration_guidelines.get(target_duration, duration_guidelines["10 minutes"])
+        duration_guide = duration_lines.get(target_duration, duration_lines["10 minutes"])
 
-        prompt = f"""Using the following document, create a podcast script for two speakers: 'Speaker 1' and 'Speaker 2'.
+        prompt = f"""Create a podcast script for 'Speaker 1' and 'Speaker 2' from the document below.
+Style: {style_instruction}
+Length: {duration_guide}
+Rules: alternate speakers every 2-4 sentences; open with an intro, close with a wrap-up; plain conversational language.
 
-STYLE GUIDELINES:
-{style_instruction}
+Output a JSON object with a 'script' array. Each element is {{"Speaker 1": "..."}} or {{"Speaker 2": "..."}}.
 
-DURATION GUIDELINES:
-{duration_guide}
+DOCUMENT:
+{document_content[:5000]}
 
-CONVERSATION RULES:
-1. Each speaker should speak for 2-4 sentences maximum before alternating
-2. The conversation should flow naturally with smooth transitions
-3. Use engaging, conversational language that's easy to understand
-4. Include brief introductions at the start and wrap-up at the end
-5. Break down complex concepts into digestible explanations
-6. Maintain professional grammar and punctuation throughout
-7. Make it engaging for listeners who haven't read the document
-
-RESPONSE FORMAT:
-Respond with a valid JSON object containing a 'script' array. Each array element should be an object with either 'Speaker 1' or 'Speaker 2' as the key and their dialogue as the value.
-
-Example format:
-{{
-  "script": [
-    {{"Speaker 1": "Welcome everyone to our podcast! Today we're diving into some fascinating insights from this document..."}},
-    {{"Speaker 2": "Thanks for having me! I'm really excited to discuss this topic. The first thing that caught my attention was..."}}
-  ]
-}}
-
-DOCUMENT CONTENT:
-{document_content[:8000]}
-
-Generate an engaging {target_duration} podcast script now:"""
+JSON script:"""
 
         try:
             response = self.llm_client.call(prompt)

@@ -39,7 +39,7 @@ class RAGGenerator:
         provider: str = "deepseek",
         model_name: str = "deepseek-chat",
         temperature: float = 0.1,
-        max_tokens: int = 2000,
+        max_tokens: int = 1500,
         fallback_api_key: Optional[str] = None,
         fallback_provider: Optional[str] = None,
         fallback_model: Optional[str] = None,
@@ -61,9 +61,9 @@ class RAGGenerator:
     def generate_response(
         self,
         query: str,
-        max_chunks: int = 8,
-        max_context_chars: int = 4000,
-        top_k: int = 10,
+        max_chunks: int = 5,
+        max_context_chars: int = 2500,
+        top_k: int = 6,
     ) -> RAGResult:
 
         if not query.strip():
@@ -139,51 +139,40 @@ class RAGGenerator:
         return '\n\n'.join(context_parts), sources_info
 
     def _create_rag_prompt(self, query: str, context: str) -> str:
-        return f"""You are an AI assistant that answers questions based on provided source material. You must follow these citation rules:
+        return f"""Answer using only the provided sources. Cite each claim with [1], [2], etc. If the answer isn't in the sources, say so.
 
-CITATION REQUIREMENTS:
-1. For each factual claim in your answer, include the citation reference number in square brackets [1], [2], etc.
-2. Only use information from the provided context - do not add external knowledge
-3. If you cannot find relevant information in the context, say so clearly
-4. Be precise and accurate in your citations
-5. When multiple sources support the same point, list all relevant citations like this [1], [2], [3].
-
-CONTEXT (with citation references):
+SOURCES:
 {context}
 
 QUESTION: {query}
 
-Please provide a comprehensive answer with proper citations. Make sure every factual statement is supported by a citation reference."""
+Answer with inline citations:"""
 
-    def generate_summary(self, max_chunks: int = 15, summary_length: str = "medium") -> RAGResult:
+    def generate_summary(self, max_chunks: int = 10, summary_length: str = "medium") -> RAGResult:
         try:
             summary_query = "main topics key findings important information overview"
             query_vector = self.embedding_generator.generate_query_embedding(summary_query)
-            search_results = self.vector_db.search(query_vector=query_vector.tolist(), limit=max_chunks)
+            search_results = self.vector_db.search(query_vector=query_vector.tolist(), limit=min(max_chunks, 10))
 
             if not search_results:
                 return RAGResult(query="Document Summary", response="No documents available for summarization.", sources_used=[], retrieval_count=0)
 
-            context, sources_info = self._format_context_with_citations(search_results, max_chunks, 6000)
+            context, sources_info = self._format_context_with_citations(search_results, max_chunks, 4000)
 
             length_instructions = {
-                'short': "Provide a concise 2-3 paragraph summary highlighting the most important points.",
-                'medium': "Provide a comprehensive 4-5 paragraph summary covering key topics and findings.",
-                'long': "Provide a detailed summary with multiple sections covering all major topics and supporting details."
+                'short': "2-3 paragraphs covering the most important points.",
+                'medium': "4-5 paragraphs covering key topics and findings.",
+                'long': "Multiple sections covering all major topics with supporting details."
             }
 
-            prompt = f"""You are tasked with creating a summary of the provided document content. Follow these guidelines:
+            prompt = f"""Summarize the document using only the provided sources. Cite each claim with [1], [2], etc.
 
-1. {length_instructions.get(summary_length, length_instructions['medium'])}
-2. Include citations [1], [2], etc. for all factual claims
-3. Organize information logically with clear topics
-4. Focus on the most important and relevant information
-5. Maintain accuracy and cite sources properly
+Length: {length_instructions.get(summary_length, length_instructions['medium'])}
 
-DOCUMENT CONTENT (with citation references):
+SOURCES:
 {context}
 
-Please provide a well-structured summary with proper citations:"""
+Summary with citations:"""
 
             response = self.llm_client.call(prompt)
 

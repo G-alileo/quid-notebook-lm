@@ -12,3 +12,6 @@ wheels/
 # env files
 .env
 .env.*  
+
+# cookies directory
+cookies/

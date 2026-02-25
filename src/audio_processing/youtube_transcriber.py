@@ -1,5 +1,6 @@
 import logging
 import os
+import shutil
 import tempfile
 from pathlib import Path
 from typing import List, Optional
@@ -35,36 +36,51 @@ class YouTubeTranscriber:
         video_id = self.extract_video_id(url)
         if not video_id:
             raise ValueError("Could not extract video ID from URL")
-        
-        expected_path = self.temp_dir / f"{video_id}.m4a"
-        if expected_path.exists():
-            logger.info(f"Audio already exists: {expected_path}")
-            return str(expected_path)
-        
+
+        existing = list(self.temp_dir.glob(f"{video_id}.mp3"))
+        if existing:
+            logger.info(f"Audio already exists: {existing[0]}")
+            return str(existing[0])
+
         logger.info(f"Downloading audio from: {url}")
-        
+
+        cookies_path = Path(__file__).parents[2] / "cookies" / "cookies.txt"
+
         ydl_opts = {
-            'format': 'm4a/bestaudio/best',
+            'format': 'bestaudio/best',
             'outtmpl': str(self.temp_dir / '%(id)s.%(ext)s'),
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
-                'preferredcodec': 'm4a',
+                'preferredcodec': 'mp3',
             }],
             'quiet': True,
             'no_warnings': True,
         }
-        
+
+        ffmpeg_path = shutil.which('ffmpeg')
+        if ffmpeg_path:
+            ydl_opts['ffmpeg_location'] = str(Path(ffmpeg_path).parent)
+            logger.info(f"Using FFmpeg at: {ffmpeg_path}")
+        else:
+            logger.warning("FFmpeg not found on PATH — audio conversion may fail")
+
+        if cookies_path.exists():
+            ydl_opts['cookiefile'] = str(cookies_path)
+            logger.info(f"Using cookies file: {cookies_path}")
+        else:
+            logger.warning(f"No cookies file found at {cookies_path} — YouTube bot check may fail")
+
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             error_code = ydl.download([url])
-            
             if error_code != 0:
                 raise Exception(f"yt-dlp download failed with error code: {error_code}")
-        
-        if not expected_path.exists():
-            raise FileNotFoundError(f"Expected audio file not found: {expected_path}")
-        
-        logger.info(f"Audio downloaded successfully: {expected_path}")
-        return str(expected_path)
+
+        downloaded = list(self.temp_dir.glob(f"{video_id}.mp3")) or list(self.temp_dir.glob(f"{video_id}.*"))
+        if not downloaded:
+            raise FileNotFoundError(f"Downloaded audio file not found for video: {video_id}")
+
+        logger.info(f"Audio downloaded successfully: {downloaded[0]}")
+        return str(downloaded[0])
     
     def transcribe_youtube_video(
         self,
