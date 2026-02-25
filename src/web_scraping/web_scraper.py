@@ -2,8 +2,7 @@ import logging
 import os
 from typing import List, Dict, Any, Optional
 from dataclasses import dataclass
-from pathlib import Path
-from urllib.parse import urlparse, urljoin
+from urllib.parse import urlparse
 import time
 from datetime import datetime
 
@@ -16,7 +15,6 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class WebPageData:
-    """Represents scraped web page data with additional metadata"""
     url: str
     title: str
     content: str

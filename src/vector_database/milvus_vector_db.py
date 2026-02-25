@@ -1,10 +1,9 @@
 import logging
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Dict, Any, Optional
 import json
 import os
-from pathlib import Path
 
-from pymilvus import MilvusClient, DataType, connections, utility
+from pymilvus import MilvusClient, DataType
 from src.embeddings.embedding_generator import EmbeddedChunk
 
 logging.basicConfig(level=logging.INFO)
@@ -24,7 +23,6 @@ class MilvusVectorDB:
         self.client = None
         self.collection_exists = False
         
-        # Check if we should use Milvus Cloud
         self.use_cloud = os.getenv("USE_MILVUS_CLOUD", "false").lower() == "true"
         self.cloud_endpoint = os.getenv("MILVUS_CLOUD_ENDPOINT")
         self.cloud_token = os.getenv("MILVUS_CLOUD_TOKEN")
@@ -35,7 +33,6 @@ class MilvusVectorDB:
     def _initialize_client(self):
         try:
             if self.use_cloud:
-                # Use Milvus Cloud connection
                 if not self.cloud_endpoint or not self.cloud_token:
                     raise ValueError("MILVUS_CLOUD_ENDPOINT and MILVUS_CLOUD_TOKEN must be set when USE_MILVUS_CLOUD=true")
                 
@@ -43,9 +40,8 @@ class MilvusVectorDB:
                     uri=self.cloud_endpoint,
                     token=self.cloud_token
                 )
-                logger.info(f"Milvus client initialized with cloud endpoint: {self.cloud_endpoint}")
+                logger.info(f"Milvus client initialized with cloud: {self.cloud_endpoint}")
             else:
-                # Use local Milvus Lite
                 self.client = MilvusClient(uri=self.db_path)
                 logger.info(f"Milvus client initialized with local database: {self.db_path}")
             
@@ -69,10 +65,9 @@ class MilvusVectorDB:
             
             schema = self.client.create_schema(
                 auto_id=False,
-                enable_dynamic_field=True  # Allow additional metadata fields
+                enable_dynamic_field=True
             )
             
-            # Primary key field (chunk_id)
             schema.add_field(
                 field_name="id",
                 datatype=DataType.VARCHAR,
@@ -80,14 +75,12 @@ class MilvusVectorDB:
                 is_primary=True
             )
             
-            # Vector field for embeddings
             schema.add_field(
                 field_name="vector",
                 datatype=DataType.FLOAT_VECTOR,
                 dim=self.embedding_dim
             )
             
-            # Essential fields for citations and content
             schema.add_field(
                 field_name="content",
                 datatype=DataType.VARCHAR,
@@ -126,7 +119,6 @@ class MilvusVectorDB:
                 datatype=DataType.INT32
             )
             
-            # JSON field for additional metadata
             schema.add_field(
                 field_name="metadata",
                 datatype=DataType.JSON
@@ -146,7 +138,6 @@ class MilvusVectorDB:
             logger.info(f"Collection '{self.collection_name}' created successfully")
             self.collection_exists = True
             
-            # Load collection immediately after creation (required for cloud)
             if self.use_cloud:
                 try:
                     self.client.load_collection(collection_name=self.collection_name)
@@ -157,13 +148,11 @@ class MilvusVectorDB:
         except Exception as e:
             error_msg = str(e)
             if "exceeded the limit number of collections" in error_msg:
-                logger.error(f"Collection limit reached. You have 5 collections on Milvus Cloud free tier.")
-                logger.error(f"Please delete unused collections or use an existing collection name.")
-                # List existing collections to help user
+                logger.error(f"Collection limit reached. Delete unused collections (5 max on free tier).")
                 try:
                     collections = self.client.list_collections()
                     logger.error(f"Existing collections: {collections}")
-                except:
+                except Exception:
                     pass
             logger.error(f"Error setting up collection: {error_msg}")
             raise
@@ -178,11 +167,15 @@ class MilvusVectorDB:
         try:
             if not self.collection_exists:
                 raise Exception("Collection does not exist. Setup collection first.")
-            
+
+            existing = self.client.list_indexes(collection_name=self.collection_name)
+            if existing:
+                logger.info(f"Index already exists on collection '{self.collection_name}', skipping creation")
+                return
+
             index_params = self.client.prepare_index_params()
             
             if use_binary_quantization:
-                # IVF_RABITQ with binary quantization
                 index_params.add_index(
                     field_name="vector",
                     index_type="IVF_RABITQ",
@@ -196,13 +189,12 @@ class MilvusVectorDB:
                 )
                 logger.info(f"Creating IVF_RABITQ index with nlist={nlist}, refine={enable_refine}")
             else:
-                # Fallback to IVF_FLAT if BQ not supported
                 index_params.add_index(
                     field_name="vector",
                     index_type="IVF_FLAT", 
                     index_name="vector_index",
                     metric_type="L2",
-                    # params={"nlist": nlist}
+                    params={"nlist": nlist}
                 )
                 logger.info(f"Creating IVF_FLAT index with nlist={nlist}")
             
@@ -227,9 +219,6 @@ class MilvusVectorDB:
                 chunk_data['page_number'] = chunk_data['page_number'] or -1
                 chunk_data['start_char'] = chunk_data['start_char'] or -1
                 chunk_data['end_char'] = chunk_data['end_char'] or -1
-                
-                if isinstance(chunk_data['metadata'], dict):
-                    chunk_data['metadata'] = chunk_data['metadata']
                 
                 data.append(chunk_data)
             
@@ -258,7 +247,6 @@ class MilvusVectorDB:
         use_binary_quantization: bool = False
     ) -> List[Dict[str, Any]]:
         try:
-            # Ensure collection is loaded before searching (critical for cloud)
             if self.use_cloud:
                 try:
                     self.client.load_collection(collection_name=self.collection_name)
@@ -280,7 +268,6 @@ class MilvusVectorDB:
                     }
                 }
             
-            # Perform vector similarity search
             results = self.client.search(
                 collection_name=self.collection_name,
                 data=[query_vector],
@@ -335,7 +322,6 @@ class MilvusVectorDB:
             raise
     
     def list_collections(self) -> List[str]:
-        """List all collections in the Milvus database"""
         try:
             collections = self.client.list_collections()
             logger.info(f"Found {len(collections)} collections: {collections}")
@@ -368,7 +354,7 @@ class MilvusVectorDB:
                 if isinstance(metadata, str):
                     try:
                         metadata = json.loads(metadata)
-                    except:
+                    except (json.JSONDecodeError, ValueError):
                         metadata = {}
                 
                 return {

@@ -1,8 +1,3 @@
-"""
-Utility script to manage Milvus Cloud collections.
-Use this to view and delete collections when you hit the 5 collection limit.
-"""
-import os
 from dotenv import load_dotenv
 from src.vector_database.milvus_vector_db import MilvusVectorDB
 

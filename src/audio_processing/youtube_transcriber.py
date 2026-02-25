@@ -74,7 +74,6 @@ class YouTubeTranscriber:
         try:
             audio_path = self.download_audio(url)
             
-            # Configure transcription with speaker diarization
             config = aai.TranscriptionConfig(
                 speaker_labels=True,
                 punctuate=True

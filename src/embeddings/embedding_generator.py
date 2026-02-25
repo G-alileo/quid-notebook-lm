@@ -1,5 +1,5 @@
 import logging
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any
 import numpy as np
 from dataclasses import dataclass
 
@@ -12,7 +12,6 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class EmbeddedChunk:
-    """Document chunk with its embedding vector"""
     chunk: DocumentChunk
     embedding: np.ndarray
     embedding_model: str

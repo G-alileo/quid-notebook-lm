@@ -45,7 +45,7 @@ Grounded Generation: The LLM is strictly instructed to only answer based on the 
 
 Inline Citations: Every claim made by the AI is tagged with a unique identifier linked back to the specific chunk in the Milvus database.
 
-4. The "NotebookLM" Special: Audio Synthesis
+4. Audio Synthesis
 The standout feature of Quid Notebook is the ability to "listen" to your documents through an AI-generated podcast.
 
 Podcast Scripting

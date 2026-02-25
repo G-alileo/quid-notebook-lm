@@ -1,7 +1,8 @@
 import logging
 import os
+import numpy as np
 import soundfile as sf
-from typing import List, Dict, Any
+from typing import List, Any
 from pathlib import Path
 from dataclasses import dataclass
 
@@ -19,7 +20,6 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class AudioSegment:
-    """Represents a single audio segment with metadata"""
     speaker: str
     text: str
     audio_data: Any
@@ -105,9 +105,7 @@ class PodcastTTSGenerator:
         
         if len(combined_audio) == 1:
             return combined_audio[0]
-        else:
-            import numpy as np
-            return np.concatenate(combined_audio)
+        return np.concatenate(combined_audio)
     
     def _clean_text_for_tts(self, text: str) -> str:
         clean_text = text.strip()
@@ -129,8 +127,6 @@ class PodcastTTSGenerator:
         logger.info(f"Combining {len(segments)} audio segments")
         
         try:
-            import numpy as np
-            
             pause_duration = 0.2  # seconds
             pause_samples = int(pause_duration * self.sample_rate)
             pause_audio = np.zeros(pause_samples, dtype=np.float32)

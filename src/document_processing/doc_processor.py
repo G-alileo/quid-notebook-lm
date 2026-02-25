@@ -1,4 +1,3 @@
-import os
 import logging
 from typing import List, Dict, Any, Optional
 from dataclasses import dataclass
@@ -14,10 +13,9 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class DocumentChunk:
-    """Represents a processed document chunk with metadata for citations"""
     content: str
     source_file: str
-    source_type: str  # 'pdf', 'txt', 'web', 'audio'
+    source_type: str
     page_number: Optional[int] = None
     chunk_index: int = 0
     start_char: Optional[int] = None
@@ -56,7 +54,7 @@ class DocumentProcessor:
     def __init__(self, chunk_size: int = 1000, chunk_overlap: int = 200):
         self.chunk_size = chunk_size
         self.chunk_overlap = chunk_overlap
-        self.supported_formats = {'.pdf', '.txt', '.md'} # add other formats if need be
+        self.supported_formats = {'.pdf', '.txt', '.md'}
     
     def process_document(self, file_path: str) -> List[DocumentChunk]:
         file_path = Path(file_path)

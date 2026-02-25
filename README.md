@@ -1,165 +1,141 @@
-# NotebookLM Clone
-In this project we build an open-source implementation of Google's NotebookLM that grounds AI responses in your documents with accurate citations. Built with modern AI technologies including RAG (Retrieval-Augmented Generation), vector databases, and conversational memory.
+# Quid Notebook
+
+Document-grounded AI assistant that provides cited, verifiable answers from your documents with conversational memory and AI podcast generation.
 
 ## Overview
 
-NotebookLM Clone is a document-grounded AI assistant that allows you to:
-
 - Upload and process multiple document types (PDF, text, audio, YouTube videos, web pages)
 - Ask questions and receive cited, verifiable answers
-- Maintain conversational context intelligently across sessions
+- Maintain conversational context across sessions
 - Generate AI podcasts from your documents
-- Clean and intuitive web interface inspired by NotebookLM
+- Clean web interface built with Streamlit
 
 ### Tech Stack
 
-- PyMuPDF for complex document parsing with PDF, TXT and Markdown support.
-- AssemblyAI for audio transcription with speaker diarization.
-- Firecrawl for scraping and content extraction from websites.
-- Milvus vector database for efficient semantic search.
-- Zep's temporal knowledge graphs as the memory layer.
-- Kokoro as the open source Text-to-Speech model.
-- Streamlit for the interactive web UI.
+- **PyMuPDF** for document parsing (PDF, TXT, Markdown)
+- **AssemblyAI** for audio transcription with speaker diarization
+- **Firecrawl** for web scraping and content extraction
+- **Milvus** vector database for semantic search
+- **Zep** temporal knowledge graphs as the memory layer
+- **Kokoro** open source Text-to-Speech model
+- **Streamlit** for the interactive web UI
 
-### NotebookLM UI
+### UI
 
-- NotebookLM-Inspired Design: Three-Panel Layout with sources panel, chat interface, and studio features.
-- Add your documents via the Upload panel.
-- Interactive source citations with detailed metadata in chat responses.
-- Podcast Generation: AI podcast creation with script generation and multi speaker TTS
+- Three-panel layout: sources panel, chat interface, and studio
+- Interactive source citations with metadata in chat responses
+- Podcast generation with script creation and multi-speaker TTS
 
 ## Architecture
 
 ![architecture-diagram](assets/flow-diagram.jpg)
 
 ## Data Flow
-1. Document Ingestion: User uploads PDF, audio, video, text, or web URL
-2. Processing: Content extracted with metadata (page numbers, timestamps, and other metadata)
-3. Chunking: Text split into overlapping segments preserving context
-4. Embedding: Chunks converted to vector representations
-5. Storage: Vectors stored in Milvus with citation metadata
-6. Query: User asks question → Query embedded → Semantic search
-7. Retrieval: Top-k relevant chunks retrieved with metadata
-8. Generation: Agent generates cited response using memory
-9. Memory: Conversation saved to Zep for future context
+
+1. **Ingestion**: User uploads PDF, audio, video, text, or web URL
+2. **Processing**: Content extracted with metadata (page numbers, timestamps)
+3. **Chunking**: Text split into overlapping segments preserving context
+4. **Embedding**: Chunks converted to vector representations
+5. **Storage**: Vectors stored in Milvus with citation metadata
+6. **Query**: User question embedded and searched semantically
+7. **Retrieval**: Top-k relevant chunks retrieved with metadata
+8. **Generation**: LLM generates cited response using retrieved context
+9. **Memory**: Conversation saved to Zep for future context
 
 ## Installation & Setup
 
-**Prerequisites**: Python 3.11
-    
+**Prerequisites**: Python 3.11+
+
 1. **Install dependencies:**
-    First, install `uv` and set up the environment:
+
     ```bash
+    # Install uv
     # MacOS/Linux
     curl -LsSf https://astral.sh/uv/install.sh | sh
-
     # Windows
     powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
-    ```
 
-    Install dependencies:
-    ```bash
-    # Create a new directory for our project
-    uv init notebook-lm
-    cd notebook-lm
-
-    # Create virtual environment and activate it
+    # Setup
     uv venv
     source .venv/bin/activate  # MacOS/Linux
-
     .venv\Scripts\activate     # Windows
 
-    # Install dependencies
     uv sync
-
-    # Additional steps (recommended)
-    uv add -U yt-dlp           # for latest version
-    uv pip install pip         # pip for TTS model dependencies
+    uv add -U yt-dlp
+    uv pip install pip
     ```
 
 2. **Set up environment variables:**
-   Create a `.env` file with your API keys as specified in `.env.example` file:
+
+   Create a `.env` file:
    ```env
-OPENAI_API_KEY=
-ASSEMBLYAI_API_KEY=
-FIRECRAWL_API_KEY=
-ZEP_API_KEY=
-MILVUS_CLOUD_ENDPOINT=
-MILVUS_CLOUD_TOKEN=
-USE_MILVUS_CLOUD=true
-
-LLM_PROVIDER=deepseek
-DEEPSEEK_API_KEY=
-GEMINI_API=
-
-
+   LLM_PROVIDER=deepseek
+   DEEPSEEK_API_KEY=
+   GEMINI_API=
+   OPENAI_API_KEY=
+   ASSEMBLYAI_API_KEY=
+   FIRECRAWL_API_KEY=
+   ZEP_API_KEY=
+   MILVUS_CLOUD_ENDPOINT=
+   MILVUS_CLOUD_TOKEN=
+   USE_MILVUS_CLOUD=false
    ```
 
-   Get the API keys here:
-   - [Assembly AI →](https://www.assemblyai.com/)
-   - [Zep AI →](https://www.getzep.com/)
-   - [Firecrawl →](https://www.firecrawl.dev/)
-   - [OpenAI →](https://openai.com)
-
+   API key providers:
+   - [Assembly AI](https://www.assemblyai.com/)
+   - [Zep AI](https://www.getzep.com/)
+   - [Firecrawl](https://www.firecrawl.dev/)
+   - [OpenAI](https://openai.com)
+   - [DeepSeek](https://platform.deepseek.com/)
 
 ## Usage
-Running the Web Application
-```python
-uv run app.py or streamlit run app.py
+
+```bash
+streamlit run app.py
 ```
-The app will open at http://localhost:8501
+
+Opens at http://localhost:8501
 
 ![app UI](assets/app-UI.png)
 
-
 ## Project Structure
+
 ```
-├── 📂 src/                            # Main source code
-│   ├── 📂 audio_processing/           # Audio transcription and processing
-│   │   ├── 🎵 audio_transcriber.py    # AssemblyAI audio transcription
-│   │   └── 🎥 youtube_transcriber.py  # YouTube video transcription
-│   │
-│   ├── 📂 document_processing/        # Document parsing and chunking
-│   │   └── 📄 doc_processor.py
-│   │
-│   ├── 📂 embeddings/                 # Vector embeddings generation
-│   │   └── 🧠 embedding_generator.py
-│   │
-│   ├── 📂 generation/                 # RAG pipeline and response generation
-│   │   └── 🤖 rag.py
-│   │
-│   ├── 📂 memory/                     # Conversation memory management
-│   │   └── 🧠 memory_layer.py         # Zep memory integration
-│   │
-│   ├── 📂 podcast/                    # Podcast generation system
-│   │   ├── 📝 script_generator.py     # Podcast script generation
-│   │   └── 🎙️ text_to_speech.py       # TTS audio generation
-│   │
-│   ├── 📂 vector_database/            # Vector storage and search
-│   │   └── 🗄️ milvus_vector_db.py
-│   │
-│   └── 📂 web_scraping/               # Web content extraction
-│       └── 🌐 web_scraper.py          # FireCrawl web scraping
-│
-├── 📂 tests/                          # Pipeline integration tests
-├── 📂 data/                           # Sample documents
-├── 📂 notebooks/                      # Walkthrough notebook
-├── 📂 outputs/                        # Generated content
-├── 📂 assets/                         # Sample images
-│
-├── 📱 app.py                          # Main Streamlit application
-├── 📋 pyproject.toml                  # Project configuration and dependencies
-├── 📋 uv.lock                         # UV lock file
-├── 🐍 .python-version                 # Python version specification
-├── 📝 .env.example                    # Example configuration file
-├── 📝 README.md                       # Project documentation
+├── src/
+│   ├── audio_processing/
+│   │   ├── audio_transcriber.py
+│   │   └── youtube_transcriber.py
+│   ├── document_processing/
+│   │   └── doc_processor.py
+│   ├── embeddings/
+│   │   └── embedding_generator.py
+│   ├── generation/
+│   │   └── rag.py
+│   ├── llm/
+│   │   └── llm_client.py
+│   ├── memory/
+│   │   └── memory_layer.py
+│   ├── podcast/
+│   │   ├── script_generator.py
+│   │   └── text_to_speech.py
+│   ├── vector_database/
+│   │   └── milvus_vector_db.py
+│   └── web_scraping/
+│       └── web_scraper.py
+├── tests/
+├── data/
+├── outputs/
+├── assets/
+├── app.py
+├── manage_collections.py
+├── pyproject.toml
+└── README.md
 ```
 
 ## Key Features
 
-- **Citation-First Approach**: Every claim is backed by specific sources with page numbers and references as in the original NotebookLM.
-- **Memory-Powered**: Uses temporal knowledge graphs to remember context and preferences during conversations.
-- **Multi-Format Support**: Process PDFs, text files, audio recordings, YouTube videos and web content seamlessly.
-- **Efficient Retrieval**: All relevant chunks retrieved intelligently along with citation metadata.
-- **AI Podcast Generation**: Transform documents into engaging multi-speaker podcast conversations.
+- **Citation-First**: Every claim backed by specific sources with page numbers and references
+- **Memory-Powered**: Temporal knowledge graphs remember context and preferences across sessions
+- **Multi-Format**: PDF, text, audio, YouTube videos, and web content
+- **AI Podcast Generation**: Transform documents into multi-speaker podcast conversations
 

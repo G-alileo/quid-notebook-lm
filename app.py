@@ -1,3 +1,4 @@
+import re
 import streamlit as st
 import os
 import tempfile
@@ -14,7 +15,6 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def create_interactive_citations(response_text: str, sources_used: List[Dict[str, Any]]) -> str:
-    import re
     
     logger.info(f"Processing interactive citations for {len(sources_used)} sources")
 
@@ -28,9 +28,8 @@ def create_interactive_citations(response_text: str, sources_used: List[Dict[str
                 citation_map[num] = source
     
     def replace_citation(match):
-        """Replace citation number with interactive element"""
-        full_match = match.group(0)  # e.g., '[1]'
-        num = match.group(1)  # e.g., '1'
+        full_match = match.group(0)
+        num = match.group(1)
         
         if num in citation_map:
             source = citation_map[num]
@@ -87,7 +86,6 @@ def create_interactive_citations(response_text: str, sources_used: List[Dict[str
         else:
             return full_match
     
-    # Replace all citation patterns [1], [2], etc.
     interactive_text = re.sub(r'\[(\d+)\]', replace_citation, response_text)
     
     return interactive_text
@@ -96,7 +94,7 @@ from src.document_processing.doc_processor import DocumentProcessor
 from src.embeddings.embedding_generator import EmbeddingGenerator
 from src.vector_database.milvus_vector_db import MilvusVectorDB
 from src.generation.rag import RAGGenerator
-from src.memory.memory_layer import NotebookMemoryLayer
+from src.memory.memory_layer import MemoryLayer
 from src.audio_processing.audio_transcriber import AudioTranscriber
 from src.audio_processing.youtube_transcriber import YouTubeTranscriber
 from src.web_scraping.web_scraper import WebScraper
@@ -104,7 +102,7 @@ from src.podcast.script_generator import PodcastScriptGenerator
 from src.podcast.text_to_speech import PodcastTTSGenerator
 
 st.set_page_config(
-    page_title="NotebookLM",
+    page_title="Quid Notebook",
     page_icon="🧠",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -291,33 +289,29 @@ def init_session_state():
 
 def reset_chat():
     try:
-        # Clear existing session from Zep if memory is available
-        # if st.session_state.pipeline and st.session_state.pipeline['memory']:
-        memory = st.session_state.pipeline['memory']
-        try:
-            memory.clear_session()
-            st.success("✅ Zep session cleared and recreated")
-        except Exception as e:
-            st.warning(f"Could not clear Zep session: {str(e)}")
-        
+        if st.session_state.pipeline and st.session_state.pipeline.get('memory'):
+            memory = st.session_state.pipeline['memory']
+            try:
+                memory.clear_session()
+            except Exception as e:
+                st.warning(f"Could not clear Zep session: {e}")
+
         st.session_state.chat_history = []
         st.session_state.session_id = str(uuid.uuid4())
-        
-        # Reinitialize memory with new session if available
-        if st.session_state.pipeline and st.session_state.pipeline['memory']:
-            new_memory = NotebookMemoryLayer(
+
+        if st.session_state.pipeline and st.session_state.pipeline.get('memory'):
+            new_memory = MemoryLayer(
                 user_id="streamlit_user",
                 session_id=st.session_state.session_id,
                 create_new_session=True
             )
             st.session_state.pipeline['memory'] = new_memory
-            st.success("✅ New Zep session initialized")
-        
+
         st.success("✅ Chat reset successfully!")
         st.rerun()
-        
+
     except Exception as e:
-        st.error(f"❌ Error resetting chat: {str(e)}")
+        st.error(f"❌ Error resetting chat: {e}")
 
 def initialize_pipeline():
     if st.session_state.pipeline_initialized:
@@ -328,7 +322,7 @@ def initialize_pipeline():
         firecrawl_key = os.getenv("FIRECRAWL_API_KEY")
         zep_key = os.getenv("ZEP_API_KEY")
         
-        with st.spinner("Initializing NotebookLM pipeline..."):
+        with st.spinner("Initializing pipeline..."):
             doc_processor = DocumentProcessor()
             embedding_generator = EmbeddingGenerator()
             vector_db = MilvusVectorDB(
@@ -336,7 +330,6 @@ def initialize_pipeline():
                 collection_name="notebook_documents"
             )
             
-            # ── Resolve primary LLM ──
             llm_provider = os.getenv("LLM_PROVIDER", "deepseek").lower()
             deepseek_key = os.getenv("DEEPSEEK_API_KEY")
             gemini_key = os.getenv("GEMINI_API")
@@ -346,7 +339,6 @@ def initialize_pipeline():
             llm_api_key = provider_keys.get(llm_provider)
 
             if not llm_api_key:
-                # fallback: pick the first available key
                 for p, k in provider_keys.items():
                     if k:
                         llm_provider, llm_api_key = p, k
@@ -356,7 +348,6 @@ def initialize_pipeline():
                 st.error("No LLM API key found. Set DEEPSEEK_API_KEY, GEMINI_API, or OPENAI_API_KEY in .env")
                 return False
 
-            # ── Resolve fallback LLM ──
             fb_key, fb_provider = None, None
             if llm_provider != "gemini" and gemini_key:
                 fb_key, fb_provider = gemini_key, "gemini"
@@ -396,7 +387,7 @@ def initialize_pipeline():
             
             memory = None
             if zep_key:
-                memory = NotebookMemoryLayer(
+                memory = MemoryLayer(
                     user_id="streamlit_user",
                     session_id=st.session_state.session_id,
                     create_new_session=True
@@ -500,10 +491,9 @@ def process_urls(urls_text):
                         chunk.source_file = url
                     
                     embedded_chunks = pipeline['embedding_generator'].generate_embeddings(chunks)
-                    # Create index if first document
                     if len(st.session_state.sources) == 0:
                         pipeline['vector_db'].create_index(use_binary_quantization=False)
-                    
+
                     pipeline['vector_db'].insert_embeddings(embedded_chunks)
                     source_info = {
                         'name': url,
@@ -566,9 +556,9 @@ def process_youtube_video(youtube_url):
 def process_text(text_content):
     if not st.session_state.pipeline or not text_content.strip():
         return
-    
+
     pipeline = st.session_state.pipeline
-    
+
     with st.spinner("Processing text..."):
         try:
             with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as tmp_file:
@@ -607,11 +597,7 @@ def process_text(text_content):
 def render_sources_sidebar():
     with st.sidebar:
         st.markdown('<div class="main-header">📚 Sources</div>', unsafe_allow_html=True)
-        
-        # if st.button("➕ Add", use_container_width=True):
-        #     st.session_state.show_source_dialog = True
-        
-        # Display sources
+
         if st.session_state.sources:
             st.markdown(f'<div class="source-count">{len(st.session_state.sources)} sources</div>', unsafe_allow_html=True)
             
@@ -635,7 +621,7 @@ def render_sources_sidebar():
 def render_source_upload_dialog():
     st.markdown("### 📁 Add sources")
     st.markdown("""
-    Sources let NotebookLM base its responses on the information that matters most to you.  
+    Sources let Quid Notebook base its responses on the information that matters most to you.  
     (Examples: marketing plans, course reading, research notes, meeting transcripts, sales documents, etc.)
     """)
     
@@ -864,7 +850,6 @@ def generate_podcast(selected_source: str, podcast_style: str, podcast_length: s
         if tts_generator:
             with st.spinner("🎵 Generating podcast... This may take several minutes..."):
                 try:
-                    import tempfile
                     temp_dir = tempfile.mkdtemp(prefix="podcast_")
                     
                     # Generate audio
@@ -981,7 +966,7 @@ def main():
     
     st.markdown("""
     <div style="display: flex; align-items: center; margin-bottom: 30px;">
-        <h1 style="color: #ffffff; margin: 0;">🧠 NotebookLM: Understand Anything</h1>
+        <h1 style="color: #ffffff; margin: 0;">🧠 Quid Notebook</h1>
     </div>
     """, unsafe_allow_html=True)
     
@@ -1001,7 +986,7 @@ def main():
     st.markdown("---")
     st.markdown("""
     <div style="text-align: center; color: #a0aec0; font-size: 12px;">
-        NotebookLM can be inaccurate; please double check its responses.
+        Quid Notebook can be inaccurate; please double check its responses.
     </div>
     """, unsafe_allow_html=True)
 
