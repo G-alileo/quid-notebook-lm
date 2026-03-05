@@ -1,0 +1,51 @@
+{
+  "script": [
+    {
+      "Speaker 1": "Hey everyone, welcome back to the show! I'm your host, Sam. Today, we're diving into something that fuels our mornings and our economies: coffee."
+    },
+    {
+      "Speaker 2": "And I'm Alex. That's right, we're talking about the history and science of the world's favorite bean. Did you know over 2.25 billion cups are drunk every single day globally?"
+    },
+    {
+      "Speaker 1": "That's a staggering number! And its story starts way back in the 9th century, in the Ethiopian highlands. Legend has it a goat herder named Kaldi noticed his goats got super energetic after eating some red berries."
+    },
+    {
+      "Speaker 2": "I love that story. He took the berries to some local monks, who made a drink from them and found it kept them alert during long prayers. That was the very first cup of coffee!"
+    },
+    {
+      "Speaker 1": "From there, it spread like wildfire. It became the fuel for intellectual movements. Enlightenment thinkers like Voltaire and Rousseau were regulars at European coffeehouses, which were basically the original social networks."
+    },
+    {
+      "Speaker 2": "Absolutely. And then coffee crossed the Atlantic. Brazil got the crop in the 1700s and is now the giant, producing about 37% of the world's coffee. It's a plant that's really shaped by geography\u2014it only grows in the 'Bean Belt' between the tropics."
+    },
+    {
+      "Speaker 1": "Which brings us to the botany. There are over 120 species, but two big players: Arabica, which is smoother and makes up 60-70% of the market, and Robusta, which is stronger and more bitter."
+    },
+    {
+      "Speaker 2": "And the chemistry is fascinating. Of course, there's caffeine, which works by blocking the brain's sleep signals. But coffee is also packed with antioxidants called chlorogenic acids, which have been linked to some health benefits."
+    },
+    {
+      "Speaker 1": "Right, and most of that rich flavor we love comes from the Maillard reaction during roasting. A light roast keeps more of the bean's original flavors, while a dark roast gives you those classic chocolatey, smoky notes."
+    },
+    {
+      "Speaker 2": "Speaking of health, the research is pretty compelling for moderate drinkers\u2014we're talking 3 to 5 cups a day. Studies show associations with a lower risk of Type 2 diabetes, certain liver diseases, and even Parkinson's."
+    },
+    {
+      "Speaker 1": "It's not all simple, though. The global coffee economy has a complex history, with issues of equity in trade. And now the industry faces huge challenges from climate change and pests like the coffee borer beetle."
+    },
+    {
+      "Speaker 2": "So coffee is this incredible intersection of history, culture, science, and global economics. It's been with us for centuries, and its future depends on innovation and sustainability."
+    },
+    {
+      "Speaker 1": "Well, that's a wrap on our coffee deep dive. Thanks for brewing with us today!"
+    },
+    {
+      "Speaker 2": "Cheers, everyone! Until next time."
+    }
+  ],
+  "metadata": {
+    "source_document": "The History and Science of Coffee.pdf",
+    "total_lines": 14,
+    "estimated_duration": "5 minutes"
+  }
+}
