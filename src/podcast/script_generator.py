@@ -153,41 +153,58 @@ Style: {style_instruction}
 Length: {duration_guide}
 Rules: alternate speakers every 2-4 sentences; open with an intro, close with a wrap-up; plain conversational language.
 
-Output a JSON object with a 'script' array. Each element is {{"Speaker 1": "..."}} or {{"Speaker 2": "..."}}.
+Output ONLY a valid JSON object with a 'script' array. Each element is {{"Speaker 1": "..."}} or {{"Speaker 2": "..."}}.
+Do not include any text before or after the JSON.
 
 DOCUMENT:
 {document_content[:5000]}
 
 JSON script:"""
 
+        response = self.llm_client.call(prompt)
+        script_data = self._parse_llm_response(response)
+
+        if 'script' not in script_data or not isinstance(script_data['script'], list):
+            raise ValueError("Invalid script format returned by LLM")
+
+        validated_script = self._validate_and_clean_script(script_data['script'])
+        return {'script': validated_script}
+
+    def _parse_llm_response(self, response: str) -> Dict[str, Any]:
+        """Parse LLM response with robust error handling."""
+        # Try direct parse first
         try:
-            response = self.llm_client.call(prompt)
-            script_data = json.loads(response)
-
-            if 'script' not in script_data or not isinstance(script_data['script'], list):
-                raise ValueError("Invalid script format returned by LLM")
-
-            validated_script = self._validate_and_clean_script(script_data['script'])
-            return {'script': validated_script}
-
+            return json.loads(response)
         except json.JSONDecodeError:
-            logger.error("Failed to parse LLM response as JSON, attempting cleanup")
-            response_clean = response.strip()
-            if response_clean.startswith('```json'):
-                response_clean = response_clean[7:-3]
-            elif response_clean.startswith('```'):
-                response_clean = response_clean[3:-3]
+            pass
 
-            try:
-                script_data = json.loads(response_clean)
-                validated_script = self._validate_and_clean_script(script_data['script'])
-                return {'script': validated_script}
-            except Exception:
-                raise ValueError(f"Could not parse LLM response as valid JSON: {response}")
+        # Clean up common formatting issues
+        response_clean = response.strip()
 
-        except Exception as e:
-            logger.error(f"Error generating script: {e}")
-            raise
+        # Remove markdown code blocks
+        if '```json' in response_clean:
+            start = response_clean.find('```json') + 7
+            end = response_clean.rfind('```')
+            response_clean = response_clean[start:end].strip()
+        elif '```' in response_clean:
+            start = response_clean.find('```') + 3
+            end = response_clean.rfind('```')
+            response_clean = response_clean[start:end].strip()
+
+        # Try to extract JSON object if surrounded by text
+        if '{' in response_clean and '}' in response_clean:
+            start = response_clean.find('{')
+            end = response_clean.rfind('}') + 1
+            response_clean = response_clean[start:end]
+
+        # Try parsing cleaned response
+        try:
+            return json.loads(response_clean)
+        except json.JSONDecodeError as e:
+            logger.error(f"Failed to parse LLM response as JSON after cleanup: {e}")
+            logger.debug(f"Response was: {response_clean[:500]}")
+            raise ValueError(f"Could not parse LLM response as valid JSON: {str(e)[:100]}")
+
 
     def _validate_and_clean_script(self, script: List[Dict[str, str]]) -> List[Dict[str, str]]:
         cleaned_script = []
