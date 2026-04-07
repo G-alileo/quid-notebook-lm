@@ -3,7 +3,7 @@
 
 
 ## Website scrape
-- https://www.ncausa.org/About-Coffee/What-is-Coffee
+- https://www.ncausa.org/about-coffee
 
 
 ## Youtube
