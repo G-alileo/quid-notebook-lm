@@ -90,6 +90,10 @@ def process_uploaded_files(uploaded_files: List[Any]) -> None:
         st.error("Pipeline not initialized")
         return
 
+    # Ensure pdf_files store exists
+    if 'pdf_files' not in st.session_state:
+        st.session_state.pdf_files = {}
+
     pipeline = st.session_state.pipeline
     progress_bar = st.progress(0, text="Processing files...")
 
@@ -99,8 +103,14 @@ def process_uploaded_files(uploaded_files: List[Any]) -> None:
 
         try:
             suffix = f".{uploaded_file.name.split('.')[-1]}"
+            file_bytes = uploaded_file.getbuffer()
+
+            # Store PDF bytes for the viewer
+            if uploaded_file.name.lower().endswith('.pdf'):
+                st.session_state.pdf_files[uploaded_file.name] = bytes(file_bytes)
+
             with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp_file:
-                tmp_file.write(uploaded_file.getbuffer())
+                tmp_file.write(file_bytes)
                 temp_path = tmp_file.name
 
             if uploaded_file.type and uploaded_file.type.startswith('audio/'):
@@ -130,7 +140,7 @@ def process_uploaded_files(uploaded_files: List[Any]) -> None:
                 source_info = {
                     'name': uploaded_file.name,
                     'type': source_type,
-                    'size': f"{len(uploaded_file.getbuffer()) / 1024:.1f} KB",
+                    'size': f"{len(file_bytes) / 1024:.1f} KB",
                     'chunks': len(chunks),
                     'uploaded_at': time.strftime("%Y-%m-%dT%H:%M:%S")
                 }

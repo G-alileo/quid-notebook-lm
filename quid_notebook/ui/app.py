@@ -26,6 +26,7 @@ from quid_notebook.ui.components.chat_interface import render_chat_interface
 from quid_notebook.ui.components.studio_interface import render_studio_interface
 from quid_notebook.ui.components.analytics_panel import render_analytics_panel
 from quid_notebook.ui.components.auth_page import render_auth_page, render_user_menu
+from quid_notebook.ui.components.pdf_viewer import render_pdf_viewer
 
 from quid_notebook.services.auth_client import auth_client
 
@@ -65,7 +66,10 @@ def init_session_state():
         'current_page': "Add Sources",
         'selected_source_idx': None,
         'current_podcast_script': None,
-        'podcast_history': []
+        'podcast_history': [],
+        'viewing_pdf': None,
+        'pdf_files': {},
+    
     }
     for key, value in defaults.items():
         if key not in st.session_state:
@@ -200,7 +204,10 @@ def render_app():
         st.markdown('</div>', unsafe_allow_html=True)
 
     with center_panel:
-        if current_page == "Add Sources":
+        viewing_pdf = st.session_state.get('viewing_pdf')
+        if viewing_pdf and viewing_pdf in st.session_state.get('pdf_files', {}):
+            render_pdf_viewer(viewing_pdf, st.session_state.pdf_files[viewing_pdf])
+        elif current_page == "Add Sources":
             render_upload_interface()
         elif current_page == "Chat":
             render_chat_interface()

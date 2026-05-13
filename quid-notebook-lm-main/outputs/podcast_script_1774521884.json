@@ -1,0 +1,51 @@
+{
+  "script": [
+    {
+      "Speaker 1": "Hey everyone, welcome back to the show! I'm Alex."
+    },
+    {
+      "Speaker 2": "And I'm Sam. Today, we're diving into something that fuels our mornings and our entire show: coffee. It's way more than just a drink, right Alex?"
+    },
+    {
+      "Speaker 1": "Absolutely. It's a global phenomenon. Over two *billion* cups are drunk every single day. But its story starts way back in the 9th century in Ethiopia, with some very energetic goats."
+    },
+    {
+      "Speaker 2": "I love that legend! A herder named Kaldi saw his goats bouncing off the walls after eating these red berries. He brought them to monks, who brewed the first cup to stay awake during prayers. That's quite an origin story."
+    },
+    {
+      "Speaker 1": "From there, it spread like wildfire. Coffeehouses became the internet cafes of the 17th century\u2014places for sharing news and ideas. The London Stock Exchange even started in a coffee house!"
+    },
+    {
+      "Speaker 2": "And it crossed oceans. Brazil got coffee in the 1700s and is now the heavyweight champ, producing about a third of the world's beans. But not all coffee beans are the same. There are two main players."
+    },
+    {
+      "Speaker 1": "Right, you've got Arabica and Robusta. Arabica makes up most of the market, it's smoother and more complex, growing at higher altitudes. Robusta is stronger, more bitter, and packs more caffeine."
+    },
+    {
+      "Speaker 2": "Speaking of caffeine, that's the famous brain stimulant. It works by blocking the chemicals that make you feel tired. But coffee's chemistry is so much richer\u2014it's full of antioxidants called chlorogenic acids."
+    },
+    {
+      "Speaker 1": "And the flavor magic happens in the roaster. It's all about the Maillard reaction\u2014the same thing that browns your steak. Light roasts keep more of the bean's original character, dark roasts bring out those smoky, chocolatey notes."
+    },
+    {
+      "Speaker 2": "Now, for the big question: is it good for us? The science is pretty reassuring for moderate drinkers\u2014like 3 to 5 cups a day. It's linked to a lower risk of type 2 diabetes, liver disease, and even some neurological benefits."
+    },
+    {
+      "Speaker 1": "Of course, it's not a miracle cure, and everyone's tolerance is different. But it's fascinating how this one beverage ties together history, botany, chemistry, and health."
+    },
+    {
+      "Speaker 2": "It really is. From Ethiopian hillsides to global commodity, coffee has shaped our world. And it continues to evolve with trends like cold brew and a focus on sustainability."
+    },
+    {
+      "Speaker 1": "Thanks for brewing over this with us, everyone. That's all the time we have for today."
+    },
+    {
+      "Speaker 2": "Until next time, keep your cups full and your curiosity percolating!"
+    }
+  ],
+  "metadata": {
+    "source_document": "The History and Science of Coffee.pdf",
+    "total_lines": 14,
+    "estimated_duration": "5 minutes"
+  }
+}

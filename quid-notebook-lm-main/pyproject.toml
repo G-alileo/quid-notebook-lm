@@ -1,0 +1,37 @@
+[project]
+name = "quid-notebook"
+version = "0.1.0"
+description = "Document-grounded AI assistant with citations, conversational memory, and podcast generation"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "yt-dlp>=2026.2.4",
+    "assemblyai>=0.44.3",
+    "crewai[google-genai]>=0.193.2",
+    "fastembed>=0.7.3",
+    "firecrawl-py>=4.3.6",
+    "kokoro>=0.9.4",
+    "pymilvus[milvus-lite]>=2.6.2",
+    "pymupdf>=1.26.4",
+    "python-dotenv>=1.1.1",
+    "soundfile>=0.12.1",
+    "streamlit>=1.28.0",
+    "torch>=2.0.0",
+    "zep-cloud>=3.4.3",
+    "zep-crewai>=1.1.1",
+    "litellm>=1.75.3",
+    "hf-xet>=1.2.0",
+    "pip>=26.0.1",
+    "plotly>=6.6.0",
+    "fastapi>=0.135.2",
+    "requests>=2.31.0",
+    "uvicorn>=0.40.0",
+    "sqlalchemy>=2.0.49",
+    "email-validator>=2.3.0",
+    "bcrypt>=4.0.0,<5.0.0",
+    "passlib[bcrypt]>=1.7.4",
+    "pydantic>=2.11.10",
+    "pydantic-settings>=2.10.1",
+    "pymysql>=1.1.2",
+    "python-jose[cryptography]>=3.3.0",
+]

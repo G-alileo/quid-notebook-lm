@@ -8,6 +8,10 @@ def render_source_list(sources: List[Dict[str, Any]] = None) -> None:
     if sources is None:
         sources = st.session_state.get('sources', [])
 
+    # Ensure viewing_pdf key exists
+    if 'viewing_pdf' not in st.session_state:
+        st.session_state.viewing_pdf = None
+
     # Header with badge count
     col1, col2 = st.columns([3, 1])
     with col1:
@@ -54,6 +58,18 @@ def render_source_card(source: Dict[str, Any], index: int) -> None:
         with col1:
             st.markdown(f"{icon} **{display_name}**")
             st.caption(f"{source_type.upper()} • {chunks} chunks")
+
+        # Show View button only for PDFs that have bytes stored
+        pdf_files = st.session_state.get('pdf_files', {})
+        if source_type.lower() == 'pdf' and name in pdf_files:
+            is_viewing = st.session_state.get('viewing_pdf') == name
+            btn_label = "👁 Viewing" if is_viewing else "👁 View"
+            if st.button(btn_label, key=f"view_pdf_{index}", use_container_width=True):
+                if is_viewing:
+                    st.session_state.viewing_pdf = None
+                else:
+                    st.session_state.viewing_pdf = name
+                st.rerun()
 
 
 def get_source_stats(sources: List[Dict[str, Any]]) -> Dict[str, Any]:
