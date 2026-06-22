@@ -22,11 +22,10 @@ def default_model(provider: str) -> str:
 def build_llm(provider: str, model_name: str, api_key: str, temperature: float, max_tokens: int) -> LLM:
     if provider == "deepseek":
         return LLM(
-            model=f"openai/{model_name}",
+            model=f"deepseek/{model_name}",
             temperature=temperature,
             max_tokens=max_tokens,
             api_key=api_key,
-            base_url="https://api.deepseek.com/v1",
         )
     if provider == "gemini":
         return LLM(model=f"gemini/{model_name}", temperature=temperature, max_tokens=max_tokens, api_key=api_key)
@@ -60,8 +59,14 @@ class LLMClient:
         fallback_provider: Optional[str] = None,
         fallback_model: Optional[str] = None,
     ):
+        self.api_key = api_key
         self.provider = provider
         self.model_name = model_name
+        self.temperature = temperature
+        self.max_tokens = max_tokens
+        self.fallback_api_key = fallback_api_key
+        self.fallback_provider = fallback_provider
+        self.fallback_model = fallback_model
 
         try:
             self.llm = build_llm(provider, model_name, api_key, temperature, max_tokens)
@@ -117,3 +122,51 @@ class LLMClient:
                     ) from fb_err
 
         raise primary_error
+
+    def call_stream(self, prompt: str):
+        import litellm
+        model_str = f"{self.provider}/{self.model_name}"
+        primary_error = None
+        try:
+            response = litellm.completion(
+                model=model_str,
+                messages=[{"role": "user", "content": prompt}],
+                api_key=self.api_key,
+                temperature=self.temperature,
+                max_tokens=self.max_tokens,
+                stream=True
+            )
+            for chunk in response:
+                content = chunk.choices[0].delta.content
+                if content:
+                    yield content
+            return
+        except Exception as e:
+            primary_error = e
+            logger.warning(f"Primary LLM stream failed: {e}")
+
+        if self.fallback_api_key and self.fallback_provider:
+            fb_model = self.fallback_model or default_model(self.fallback_provider)
+            fb_model_str = f"{self.fallback_provider}/{fb_model}"
+            logger.info(f"Switching to fallback LLM stream: {fb_model_str}")
+            try:
+                response = litellm.completion(
+                    model=fb_model_str,
+                    messages=[{"role": "user", "content": prompt}],
+                    api_key=self.fallback_api_key,
+                    temperature=self.temperature,
+                    max_tokens=self.max_tokens,
+                    stream=True
+                )
+                for chunk in response:
+                    content = chunk.choices[0].delta.content
+                    if content:
+                        yield content
+                return
+            except Exception as fb_err:
+                raise RuntimeError(
+                    f"Both LLM streams failed.\n  Primary: {primary_error}\n  Fallback: {fb_err}"
+                ) from fb_err
+
+        raise primary_error
+

@@ -63,7 +63,19 @@ class PodcastTTSGenerator:
             logger.info(f"Processing segment {i+1}/{podcast_script.total_lines}: {speaker}")
             
             try:
-                segment_audio = self._generate_single_segment(speaker, dialogue)
+                import hashlib
+                cache_dir = "outputs/tts_cache"
+                Path(cache_dir).mkdir(parents=True, exist_ok=True)
+                hash_val = hashlib.md5(f"{speaker}_{dialogue}".encode('utf-8')).hexdigest()
+                cache_path = os.path.join(cache_dir, f"{hash_val}.wav")
+
+                if os.path.exists(cache_path):
+                    logger.info(f"✓ Cache HIT for segment {i+1} (hash: {hash_val})")
+                    segment_audio, _ = sf.read(cache_path)
+                else:
+                    segment_audio = self._generate_single_segment(speaker, dialogue)
+                    sf.write(cache_path, segment_audio, self.sample_rate)
+
                 segment_filename = f"segment_{i+1:03d}_{speaker.replace(' ', '_').lower()}.wav"
                 segment_path = os.path.join(output_dir, segment_filename)
                 

@@ -22,11 +22,10 @@ def default_model(provider: str) -> str:
 def build_llm(provider: str, model_name: str, api_key: str, temperature: float, max_tokens: int) -> LLM:
     if provider == "deepseek":
         return LLM(
-            model=f"openai/{model_name}",
+            model=f"deepseek/{model_name}",
             temperature=temperature,
             max_tokens=max_tokens,
             api_key=api_key,
-            base_url="https://api.deepseek.com/v1",
         )
     if provider == "gemini":
         return LLM(model=f"gemini/{model_name}", temperature=temperature, max_tokens=max_tokens, api_key=api_key)

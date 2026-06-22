@@ -186,3 +186,46 @@ Summary with citations:"""
         except Exception as e:
             logger.error(f"Error generating summary: {e}")
             return RAGResult(query="Document Summary", response=f"Error generating summary: {e}", sources_used=[], retrieval_count=0)
+
+    def generate_response_stream(
+        self,
+        query: str,
+        max_chunks: int = 5,
+        max_context_chars: int = 2500,
+        top_k: int = 6,
+    ):
+        if not query.strip():
+            yield {"token": "Please provide a valid question.", "done": True, "sources_used": []}
+            return
+
+        try:
+            logger.info(f"Generating streaming response for: '{query[:50]}...'")
+
+            query_vector = self.embedding_generator.generate_query_embedding(query)
+            search_results = self.vector_db.search(query_vector=query_vector.tolist(), limit=top_k)
+
+            if not search_results:
+                yield {
+                    "token": "I couldn't find any relevant information in the available documents to answer your question.",
+                    "done": True,
+                    "sources_used": []
+                }
+                return
+
+            context, sources_info = self._format_context_with_citations(search_results, max_chunks, max_context_chars)
+            prompt = self._create_rag_prompt(query, context)
+
+            # Yield sources list first
+            yield {"sources_used": sources_info, "done": False}
+
+            # Yield tokens
+            for token in self.llm_client.call_stream(prompt):
+                yield {"token": token, "done": False}
+
+            # Finalize
+            yield {"done": True}
+
+        except Exception as e:
+            logger.error(f"Error in RAG stream: {e}")
+            yield {"token": f"\nError processing question: {str(e)}", "done": True}
+

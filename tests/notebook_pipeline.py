@@ -2,13 +2,13 @@ import os
 import logging
 from pathlib import Path
 
-from src.document_processing.doc_processor import DocumentProcessor
-from src.embeddings.embedding_generator import EmbeddingGenerator
-from src.vector_database.milvus_vector_db import MilvusVectorDB
-from src.generation.rag import RAGGenerator
-from src.memory.memory_layer import MemoryLayer
-from src.audio_processing.audio_transcriber import AudioTranscriber
-from src.web_scraping.web_scraper import WebScraper
+from quid_notebook.services.document_processing.doc_processor import DocumentProcessor
+from quid_notebook.services.embeddings.embedding_generator import EmbeddingGenerator
+from quid_notebook.services.vector_database.milvus_vector_db import MilvusVectorDB
+from quid_notebook.services.generation.rag import RAGGenerator
+from quid_notebook.services.memory.memory_layer import MemoryLayer
+from quid_notebook.services.audio_processing.audio_transcriber import AudioTranscriber
+from quid_notebook.services.web_scraping.web_scraper import WebScraper
 
 logging.basicConfig(level=logging.INFO, format='%(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
