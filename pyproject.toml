@@ -18,7 +18,6 @@ dependencies = [
     "streamlit>=1.28.0",
     "torch>=2.0.0",
     "zep-cloud>=3.4.3",
-    "zep-crewai>=1.1.1",
     "litellm>=1.75.3",
     "hf-xet>=1.2.0",
     "pip>=26.0.1",

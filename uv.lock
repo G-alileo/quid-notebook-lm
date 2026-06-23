@@ -3693,18 +3693,6 @@ wheels = [
 ]
 
 [[package]]
-name = "python-slugify"
-version = "8.0.4"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "text-unidecode" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/87/c7/5e1547c44e31da50a460df93af11a535ace568ef89d7a811069ead340c4a/python-slugify-8.0.4.tar.gz", hash = "sha256:59202371d1d05b54a9e7720c5e038f928f45daaffe41dd10822f3907b937c856", size = 10921, upload-time = "2024-02-08T18:32:45.488Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/a4/62/02da182e544a51a5c3ccf4b03ab79df279f9c60c5e82d5e8bec7ca26ac11/python_slugify-8.0.4-py2.py3-none-any.whl", hash = "sha256:276540b79961052b66b7d116620b36518847f52d5fd9e3a70164fc8c50faa6b8", size = 10051, upload-time = "2024-02-08T18:32:43.911Z" },
-]
-
-[[package]]
 name = "pytz"
 version = "2025.2"
 source = { registry = "https://pypi.org/simple" }
@@ -3820,7 +3808,6 @@ dependencies = [
     { name = "uvicorn" },
     { name = "yt-dlp" },
     { name = "zep-cloud" },
-    { name = "zep-crewai" },
 ]
 
 [package.metadata]
@@ -3853,7 +3840,6 @@ requires-dist = [
     { name = "uvicorn", specifier = ">=0.40.0" },
     { name = "yt-dlp", specifier = ">=2026.2.4" },
     { name = "zep-cloud", specifier = ">=3.4.3" },
-    { name = "zep-crewai", specifier = ">=1.1.1" },
 ]
 
 [[package]]
@@ -4490,15 +4476,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/46/79/cf31d7a93a8fdc6aa0fbb665be84426a8c5a557d9240b6239e9e11e35fc5/termcolor-3.3.0.tar.gz", hash = "sha256:348871ca648ec6a9a983a13ab626c0acce02f515b9e1983332b17af7979521c5", size = 14434, upload-time = "2025-12-29T12:55:21.882Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/33/d1/8bb87d21e9aeb323cc03034f5eaf2c8f69841e40e4853c2627edf8111ed3/termcolor-3.3.0-py3-none-any.whl", hash = "sha256:cf642efadaf0a8ebbbf4bc7a31cec2f9b5f21a9f726f4ccbb08192c9c26f43a5", size = 7734, upload-time = "2025-12-29T12:55:20.718Z" },
-]
-
-[[package]]
-name = "text-unidecode"
-version = "1.3"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/ab/e2/e9a00f0ccb71718418230718b3d900e71a5d16e701a3dae079a21e9cd8f8/text-unidecode-1.3.tar.gz", hash = "sha256:bad6603bb14d279193107714b288be206cac565dfa49aa5b105294dd5c4aab93", size = 76885, upload-time = "2019-08-30T21:36:45.405Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/a6/a5/c0b6468d3824fe3fde30dbb5e1f687b291608f9473681bbf7dabbf5a87d7/text_unidecode-1.3-py2.py3-none-any.whl", hash = "sha256:1311f10e8b895935241623731c2ba64f4c455287888b18189350b67134a822e8", size = 78154, upload-time = "2019-08-30T21:37:03.543Z" },
 ]
 
 [[package]]
@@ -5360,23 +5337,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/3a/79/46f8d46d90c15dab68e062a10cb802ec24bedf6d4df6c708fe5ab4232b64/zep_cloud-3.16.0.tar.gz", hash = "sha256:5e6e363797ce613a79e56625aa282bde1fd819b8b70028415a5ba16817b19433", size = 66447, upload-time = "2026-01-17T02:08:09.665Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/43/48/85ccaec38ef7ee44d5e255139af36e5ecee76a893c1a5827a983d3471e13/zep_cloud-3.16.0-py3-none-any.whl", hash = "sha256:d740cb2432bd23895f78f5340dcc1ae8474e62b8c7a32dab84bd1133432d7778", size = 115116, upload-time = "2026-01-17T02:08:08.24Z" },
-]
-
-[[package]]
-name = "zep-crewai"
-version = "1.1.1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "aiohttp" },
-    { name = "crewai" },
-    { name = "python-dotenv" },
-    { name = "python-slugify" },
-    { name = "rich" },
-    { name = "zep-cloud" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/13/95/925bf4d4897f486703d1b2ea39498f6ffc68febc7b0cb16d70768e9e9a7b/zep_crewai-1.1.1.tar.gz", hash = "sha256:5c0247a89e6c53e941737067efa9be9e7b53a3b01660085c5f074008b38569b8", size = 27724, upload-time = "2025-09-11T18:02:31.106Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/a8/63/6d96bc62ccca771c0ea5bb16d6bedb4ff79a9f0569d41c6f5923dec395dd/zep_crewai-1.1.1-py3-none-any.whl", hash = "sha256:5f3bdeb09c82d9d1d7a9c934e480874a9703b644a14af3a1bf029345a6dfa323", size = 15395, upload-time = "2025-09-11T18:02:29.554Z" },
 ]
 
 [[package]]

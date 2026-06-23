@@ -6,8 +6,6 @@ from datetime import datetime
 import httpx
 
 from zep_cloud.client import Zep
-from zep_crewai import ZepUserStorage
-from crewai.memory.external.external_memory import ExternalMemory
 from quid_notebook.services.generation.rag import RAGResult
 
 logger = logging.getLogger(__name__)
@@ -34,14 +32,6 @@ class MemoryLayer:
         )
 
         self._setup_user_and_session(create_new_session)
-
-        self.user_storage = ZepUserStorage(
-            client=self.zep_client,
-            user_id=self.user_id,
-            thread_id=self.session_id,
-            mode=mode,
-        )
-        self.external_memory = ExternalMemory(storage=self.user_storage)
 
         logger.info(f"MemoryLayer initialized for user {user_id}, session {session_id}")
 
@@ -108,6 +98,20 @@ class MemoryLayer:
                     continue
                 raise
 
+    def _save_to_zep(self, content: str, metadata: dict):
+        from zep_cloud.types import Message
+        role = metadata.get("role", "system")
+        message = Message(
+            role=role,
+            content=content,
+            metadata=metadata
+        )
+        self.zep_client.thread.add_messages(
+            thread_id=self.session_id,
+            messages=[message]
+        )
+
+
     def save_conversation_turn(
         self,
         rag_result: RAGResult,
@@ -125,7 +129,7 @@ class MemoryLayer:
                 **(user_metadata or {})
             }
             self._retry_with_backoff(
-                lambda: self.external_memory.save(rag_result.query, metadata=user_meta)
+                lambda: self._save_to_zep(rag_result.query, metadata=user_meta)
             )
 
             assistant_meta = {
@@ -140,7 +144,7 @@ class MemoryLayer:
                 **(assistant_metadata or {})
             }
             self._retry_with_backoff(
-                lambda: self.external_memory.save(rag_result.response, metadata=assistant_meta)
+                lambda: self._save_to_zep(rag_result.response, metadata=assistant_meta)
             )
 
             self._save_source_context(rag_result.sources_used)
@@ -184,7 +188,7 @@ class MemoryLayer:
         source_context["document_types"] = list(source_context["document_types"])
 
         self._retry_with_backoff(
-            lambda: self.external_memory.save(
+            lambda: self._save_to_zep(
                 f"Document sources referenced: {source_context}",
                 metadata={
                     "type": "source_context",
@@ -197,7 +201,7 @@ class MemoryLayer:
     def save_user_preferences(self, preferences: Dict[str, Any]):
         try:
             self._retry_with_backoff(
-                lambda: self.external_memory.save(
+                lambda: self._save_to_zep(
                     f"User preferences: {preferences}",
                     metadata={
                         "type": "preferences",
@@ -214,7 +218,7 @@ class MemoryLayer:
     def save_document_metadata(self, document_info: Dict[str, Any]):
         try:
             self._retry_with_backoff(
-                lambda: self.external_memory.save(
+                lambda: self._save_to_zep(
                     f"Document processed: {document_info}",
                     metadata={
                         "type": "document_metadata",
