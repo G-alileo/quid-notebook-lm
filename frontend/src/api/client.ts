@@ -1,4 +1,6 @@
-const BASE_URL = 'http://localhost:8000';
+const BASE_URL = window.location.port === '5173'
+  ? 'http://localhost:8000'
+  : '';
 
 export interface TokenResponse {
   access_token: string;

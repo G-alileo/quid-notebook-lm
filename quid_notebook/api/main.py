@@ -1,6 +1,9 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+import os
 
 from quid_notebook.core import settings, database, Base
 from quid_notebook.api.routers import auth_router, users_router
@@ -45,3 +48,34 @@ app.include_router(podcast_router)
 @app.get("/health")
 def health():
     return {"status": "healthy"}
+
+
+# Serve frontend assets in production if compiled
+frontend_dist_path = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 
+    "frontend", 
+    "dist"
+)
+
+if os.path.exists(frontend_dist_path):
+    assets_path = os.path.join(frontend_dist_path, "assets")
+    if os.path.exists(assets_path):
+        app.mount("/assets", StaticFiles(directory=assets_path), name="assets")
+
+    @app.get("/{file_name:path}")
+    async def serve_static_or_spa(file_name: str):
+        # Prevent intercepting FastAPI router endpoints or documentation
+        if file_name.startswith(("auth/", "users/", "documents/", "chat/", "podcast/", "docs", "redoc", "openapi.json", "health")):
+            from fastapi import HTTPException
+            raise HTTPException(status_code=404, detail="Not Found")
+            
+        file_path = os.path.join(frontend_dist_path, file_name)
+        if file_name and os.path.exists(file_path) and os.path.isfile(file_path):
+            return FileResponse(file_path)
+            
+        index_path = os.path.join(frontend_dist_path, "index.html")
+        if os.path.exists(index_path):
+            return FileResponse(index_path)
+            
+        return {"message": "Frontend not built"}
+
