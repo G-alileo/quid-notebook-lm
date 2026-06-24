@@ -2,7 +2,27 @@ import logging
 import time
 from typing import Optional
 
-from crewai import LLM
+class LiteLLMWrapper:
+    def __init__(self, model: str, temperature: float, max_tokens: int, api_key: str):
+        self.model = model
+        self.temperature = temperature
+        self.max_tokens = max_tokens
+        self.api_key = api_key
+
+    def call(self, prompt: str):
+        import litellm
+        response = litellm.completion(
+            model=self.model,
+            messages=[{"role": "user", "content": prompt}],
+            api_key=self.api_key,
+            temperature=self.temperature,
+            max_tokens=self.max_tokens,
+            stream=False
+        )
+        class CustomResponse:
+            def __init__(self, content):
+                self.content = content
+        return CustomResponse(response.choices[0].message.content)
 
 logger = logging.getLogger(__name__)
 
@@ -19,17 +39,27 @@ def default_model(provider: str) -> str:
     return DEFAULT_MODELS.get(provider, provider)
 
 
-def build_llm(provider: str, model_name: str, api_key: str, temperature: float, max_tokens: int) -> LLM:
+def build_llm(provider: str, model_name: str, api_key: str, temperature: float, max_tokens: int) -> LiteLLMWrapper:
     if provider == "deepseek":
-        return LLM(
+        return LiteLLMWrapper(
             model=f"deepseek/{model_name}",
             temperature=temperature,
             max_tokens=max_tokens,
             api_key=api_key,
         )
     if provider == "gemini":
-        return LLM(model=f"gemini/{model_name}", temperature=temperature, max_tokens=max_tokens, api_key=api_key)
-    return LLM(model=f"openai/{model_name}", temperature=temperature, max_tokens=max_tokens, api_key=api_key)
+        return LiteLLMWrapper(
+            model=f"gemini/{model_name}", 
+            temperature=temperature, 
+            max_tokens=max_tokens, 
+            api_key=api_key
+        )
+    return LiteLLMWrapper(
+        model=f"openai/{model_name}", 
+        temperature=temperature, 
+        max_tokens=max_tokens, 
+        api_key=api_key
+    )
 
 
 def extract_text(response) -> str:
@@ -75,7 +105,7 @@ class LLMClient:
             logger.error(f"Failed to build primary LLM ({provider}/{model_name}): {e}")
             self.llm = None
 
-        self.fallback_llm: Optional[LLM] = None
+        self.fallback_llm: Optional[LiteLLMWrapper] = None
         if fallback_api_key and fallback_provider:
             fb_model = fallback_model or default_model(fallback_provider)
             try:
