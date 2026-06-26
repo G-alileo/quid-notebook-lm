@@ -7,7 +7,8 @@ import {
   CheckCircle2, 
   AlertTriangle,
   ArrowRight,
-  RefreshCw
+  RefreshCw,
+  Menu
 } from 'lucide-react';
 
 const YoutubeIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
@@ -27,11 +28,12 @@ const YoutubeIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
 
 interface UploadInterfaceProps {
   onUploadSuccess: () => void;
+  onOpenMenu?: () => void;
 }
 
 type TabType = 'file' | 'url' | 'youtube' | 'text';
 
-export const UploadInterface: React.FC<UploadInterfaceProps> = ({ onUploadSuccess }) => {
+export const UploadInterface: React.FC<UploadInterfaceProps> = ({ onUploadSuccess, onOpenMenu }) => {
   const [activeTab, setActiveTab] = useState<TabType>('file');
   const [loading, setLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
@@ -302,16 +304,27 @@ export const UploadInterface: React.FC<UploadInterfaceProps> = ({ onUploadSucces
   };
 
   return (
-    <div className="p-8 max-w-4xl mx-auto space-y-8 select-none">
-      <div>
-        <h1 className="text-3xl font-bold text-white tracking-tight m-0">Add Sources</h1>
-        <p className="text-zinc-400 mt-2 text-sm">
-          Load files, websites, video audio, or raw notes to build your notebook's grounding knowledge database.
-        </p>
+    <div className="p-4 md:p-8 max-w-4xl mx-auto space-y-6 md:space-y-8 select-none">
+      <div className="flex items-center gap-3.5">
+        {onOpenMenu && (
+          <button
+            type="button"
+            onClick={onOpenMenu}
+            className="lg:hidden text-zinc-400 hover:text-white p-2 hover:bg-zinc-900 rounded-xl transition-all cursor-pointer shrink-0"
+          >
+            <Menu className="w-6 h-6" />
+          </button>
+        )}
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight m-0">Add Sources</h1>
+          <p className="text-zinc-400 mt-2 text-xs md:text-sm">
+            Load files, websites, video audio, or raw notes to build your notebook's grounding knowledge database.
+          </p>
+        </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-zinc-800 gap-1 bg-zinc-900/60 p-1.5 rounded-2xl max-w-lg">
+      <div className="flex border-b border-zinc-800 gap-1 bg-zinc-900/60 p-1.5 rounded-2xl max-w-lg overflow-x-auto scrollbar-none">
         <button
           type="button"
           onClick={() => { setActiveTab('file'); resetStatus(); }}
@@ -369,7 +382,7 @@ export const UploadInterface: React.FC<UploadInterfaceProps> = ({ onUploadSucces
       )}
 
       {/* Main card panel */}
-      <div className="bg-zinc-900 border border-zinc-800/80 rounded-3xl p-8 relative overflow-hidden">
+      <div className="bg-zinc-900 border border-zinc-800/80 rounded-3xl p-5 md:p-8 relative overflow-hidden">
         {loading && (
           <div className="absolute inset-0 bg-zinc-950/60 backdrop-blur-sm z-20 flex flex-col items-center justify-center gap-4">
             <div className="w-10 h-10 border-2 border-violet-500/30 border-t-violet-500 rounded-full animate-spin"></div>

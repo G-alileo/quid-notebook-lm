@@ -12,7 +12,8 @@ import {
   Database, 
   FileText, 
   Mic, 
-  MessageSquare
+  MessageSquare,
+  Menu
 } from 'lucide-react';
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
   const [viewingPDF, setViewingPDF] = useState<DocumentResponse | null>(null);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [targetPage, setTargetPage] = useState<number | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Check auth status on mount
   useEffect(() => {
@@ -119,26 +121,26 @@ function App() {
   const renderCenterPanel = () => {
     if (viewingPDF && pdfUrl) {
       return (
-        <div className="flex flex-col h-screen select-none bg-zinc-950 p-6 relative">
+        <div className="flex flex-col h-screen select-none bg-zinc-950 p-4 md:p-6 relative">
           <div className="flex items-center justify-between mb-4 bg-zinc-900 border border-zinc-800 p-4 rounded-2xl relative z-10 shrink-0">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-lg flex items-center justify-center">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-8 h-8 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-lg flex items-center justify-center shrink-0">
                 <FileText className="w-4.5 h-4.5" />
               </div>
-              <div>
-                <span className="block text-zinc-200 font-semibold text-xs truncate max-w-lg">{viewingPDF.name}</span>
+              <div className="min-w-0">
+                <span className="block text-zinc-200 font-semibold text-xs truncate max-w-xs md:max-w-lg">{viewingPDF.name}</span>
                 <span className="block text-zinc-550 text-[10px] uppercase font-bold tracking-wider">PDF Viewer overlay</span>
               </div>
             </div>
             <button
               onClick={closePDFViewer}
-              className="text-zinc-400 hover:text-white p-2 hover:bg-zinc-800 rounded-lg transition-all flex items-center gap-1.5 text-xs font-semibold cursor-pointer"
+              className="text-zinc-400 hover:text-white p-2 hover:bg-zinc-800 rounded-lg transition-all flex items-center gap-1.5 text-xs font-semibold cursor-pointer shrink-0"
             >
               <X className="w-4 h-4" />
               Close
             </button>
           </div>
-          <div className="flex-1 bg-zinc-900 border border-zinc-800/80 rounded-2xl p-4 overflow-hidden relative">
+          <div className="flex-1 bg-zinc-900 border border-zinc-800/80 rounded-2xl p-2 md:p-4 overflow-hidden relative">
             <iframe
               src={targetPage ? `${pdfUrl}#page=${targetPage}&toolbar=0` : `${pdfUrl}#toolbar=0`}
               className="w-full h-full border-none rounded-xl"
@@ -149,15 +151,17 @@ function App() {
       );
     }
 
+    const openMenu = () => setSidebarOpen(true);
+
     switch (currentPage) {
       case 'Add Sources':
-        return <UploadInterface onUploadSuccess={loadSources} />;
+        return <UploadInterface onUploadSuccess={loadSources} onOpenMenu={openMenu} />;
       case 'Chat':
-        return <ChatInterface onSelectPDFPage={onSelectPDFPage} />;
+        return <ChatInterface onSelectPDFPage={onSelectPDFPage} onOpenMenu={openMenu} />;
       case 'Studio':
-        return <StudioInterface sources={sources} />;
+        return <StudioInterface sources={sources} onOpenMenu={openMenu} />;
       default:
-        return <UploadInterface onUploadSuccess={loadSources} />;
+        return <UploadInterface onUploadSuccess={loadSources} onOpenMenu={openMenu} />;
     }
   };
 
@@ -168,7 +172,7 @@ function App() {
     const avgChunks = totalSources > 0 ? (totalChunks / totalSources).toFixed(1) : '0.0';
 
     return (
-      <aside className="w-80 bg-zinc-900 border-l border-zinc-800 flex flex-col h-screen select-none shrink-0 p-6 space-y-6 overflow-y-auto">
+      <aside className="hidden xl:flex w-80 bg-zinc-900 border-l border-zinc-800 flex-col h-screen select-none shrink-0 p-6 space-y-6 overflow-y-auto">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 bg-violet-500/10 border border-violet-500/20 text-violet-400 rounded-lg flex items-center justify-center">
             <BarChart3 className="w-4 h-4" />
@@ -334,17 +338,31 @@ function App() {
   }
 
   return (
-    <div className="flex h-screen bg-zinc-950 overflow-hidden font-sans">
+    <div className="flex h-screen bg-zinc-950 overflow-hidden font-sans relative">
+      {/* Sidebar Backdrop Overlay on Mobile */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/60 backdrop-blur-xs z-45 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       <Sidebar
         currentPage={currentPage}
         onPageChange={(page) => {
           setCurrentPage(page);
           setViewingPDF(null);
+          setSidebarOpen(false); // Auto-close drawer on selection
         }}
         sources={sources}
-        onSelectPDF={handleSelectPDF}
+        onSelectPDF={(doc) => {
+          handleSelectPDF(doc);
+          setSidebarOpen(false); // Auto-close drawer on selection
+        }}
         onLogout={handleLogout}
         username={user?.username || 'User'}
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
       />
 
       <main className="flex-1 h-screen overflow-y-auto bg-zinc-950">

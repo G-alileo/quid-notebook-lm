@@ -58,6 +58,10 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onSuccess }) => {
             }`}
             onClick={() => {
               setIsLogin(true);
+              setUsername('');
+              setEmail('');
+              setPassword('');
+              setFullName('');
               setError('');
             }}
           >
@@ -71,6 +75,10 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onSuccess }) => {
             }`}
             onClick={() => {
               setIsLogin(false);
+              setUsername('');
+              setEmail('');
+              setPassword('');
+              setFullName('');
               setError('');
             }}
           >
@@ -86,7 +94,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onSuccess }) => {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off">
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5">
               Username
@@ -98,6 +106,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onSuccess }) => {
               <input
                 type="text"
                 required
+                autoComplete="off"
                 className="w-full bg-zinc-950/50 border border-zinc-800 focus:border-violet-500 focus:ring-1 focus:ring-violet-500 rounded-xl py-2.5 pl-10 pr-4 text-white placeholder-zinc-500 text-sm outline-none transition-all"
                 placeholder="Enter your username"
                 value={username}
@@ -137,6 +146,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onSuccess }) => {
                   <input
                     type="email"
                     required
+                    autoComplete="off"
                     className="w-full bg-zinc-950/50 border border-zinc-800 focus:border-violet-500 focus:ring-1 focus:ring-violet-500 rounded-xl py-2.5 pl-10 pr-4 text-white placeholder-zinc-500 text-sm outline-none transition-all"
                     placeholder="Enter your email"
                     value={email}
@@ -158,6 +168,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onSuccess }) => {
               <input
                 type="password"
                 required
+                autoComplete="new-password"
                 className="w-full bg-zinc-950/50 border border-zinc-800 focus:border-violet-500 focus:ring-1 focus:ring-violet-500 rounded-xl py-2.5 pl-10 pr-4 text-white placeholder-zinc-500 text-sm outline-none transition-all"
                 placeholder="Enter your password"
                 value={password}

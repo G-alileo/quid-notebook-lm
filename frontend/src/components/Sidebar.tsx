@@ -9,7 +9,8 @@ import {
   FolderPlus, 
   MessageSquare, 
   Mic,
-  BookOpen
+  BookOpen,
+  X
 } from 'lucide-react';
 
 const YoutubeIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
@@ -34,6 +35,8 @@ interface SidebarProps {
   onSelectPDF: (doc: DocumentResponse) => void;
   onLogout: () => void;
   username: string;
+  isOpen?: boolean;
+  onClose?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -43,6 +46,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onSelectPDF,
   onLogout,
   username,
+  isOpen,
+  onClose,
 }) => {
   const getSourceIcon = (type: string) => {
     switch (type.toLowerCase()) {
@@ -63,16 +68,27 @@ export const Sidebar: React.FC<SidebarProps> = ({
   };
 
   return (
-    <aside className="w-72 bg-zinc-900 border-r border-zinc-800 flex flex-col h-screen select-none shrink-0">
+    <aside className={`fixed inset-y-0 left-0 z-50 w-72 bg-zinc-900 border-r border-zinc-800 flex flex-col h-screen select-none shrink-0 transition-transform duration-300 lg:static lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
       {/* Brand Header */}
-      <div className="p-6 border-b border-zinc-800 flex items-center gap-3">
-        <div className="w-9 h-9 bg-violet-600/10 border border-violet-500/30 rounded-xl flex items-center justify-center text-violet-400 font-bold text-lg">
-          Q
+      <div className="p-6 border-b border-zinc-800 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 bg-violet-600/10 border border-violet-500/30 rounded-xl flex items-center justify-center text-violet-400 font-bold text-lg">
+            Q
+          </div>
+          <div>
+            <span className="font-bold text-white tracking-wide block text-sm">Quid Notebook</span>
+            <span className="text-zinc-500 text-xs font-semibold uppercase tracking-wider">Workspace</span>
+          </div>
         </div>
-        <div>
-          <span className="font-bold text-white tracking-wide block text-sm">Quid Notebook</span>
-          <span className="text-zinc-500 text-xs font-semibold uppercase tracking-wider">Workspace</span>
-        </div>
+        {onClose && (
+          <button
+            type="button"
+            onClick={onClose}
+            className="lg:hidden text-zinc-500 hover:text-white p-1 hover:bg-zinc-800 rounded-lg cursor-pointer"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        )}
       </div>
 
       {/* Navigation Links */}

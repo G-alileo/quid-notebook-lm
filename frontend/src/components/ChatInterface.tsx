@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { api } from '../api/client';
 import type { ChatSource } from '../api/client';
-import { MessageSquare, Send, Sparkles, BookOpen, Trash2 } from 'lucide-react';
+import { MessageSquare, Send, Sparkles, BookOpen, Trash2, Menu } from 'lucide-react';
 
 interface ChatMessage {
   id: string;
@@ -12,9 +12,10 @@ interface ChatMessage {
 
 interface ChatInterfaceProps {
   onSelectPDFPage?: (fileName: string, pageNumber: number) => void;
+  onOpenMenu?: () => void;
 }
 
-export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onSelectPDFPage }) => {
+export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onSelectPDFPage, onOpenMenu }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -194,14 +195,23 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onSelectPDFPage })
       <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-violet-600/5 rounded-full blur-[100px] pointer-events-none"></div>
 
       {/* Header bar */}
-      <header className="p-6 border-b border-zinc-900 bg-zinc-950/40 flex items-center justify-between shrink-0 relative z-10">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-violet-500/10 border border-violet-500/20 text-violet-400 rounded-xl flex items-center justify-center">
+      <header className="p-4 md:p-6 border-b border-zinc-900 bg-zinc-950/40 flex items-center justify-between shrink-0 relative z-10">
+        <div className="flex items-center gap-3 min-w-0">
+          {onOpenMenu && (
+            <button
+              type="button"
+              onClick={onOpenMenu}
+              className="lg:hidden text-zinc-400 hover:text-white p-2 hover:bg-zinc-900 rounded-xl transition-all cursor-pointer shrink-0"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+          )}
+          <div className="w-9 h-9 bg-violet-500/10 border border-violet-500/20 text-violet-400 rounded-xl flex items-center justify-center shrink-0">
             <Sparkles className="w-5 h-5" />
           </div>
-          <div>
-            <h1 className="text-lg font-bold text-white tracking-tight m-0">Notebook Assistant</h1>
-            <p className="text-zinc-500 text-xs mt-0.5 font-medium">Grounded RAG answering with verifiable citations</p>
+          <div className="min-w-0">
+            <h1 className="text-base md:text-lg font-bold text-white tracking-tight m-0 truncate">Notebook Assistant</h1>
+            <p className="text-zinc-500 text-[10px] md:text-xs mt-0.5 font-medium truncate">Grounded RAG answering with verifiable citations</p>
           </div>
         </div>
         {messages.length > 0 && (
@@ -218,7 +228,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onSelectPDFPage })
       </header>
 
       {/* Scrollable messages container */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-6 relative z-10">
+      <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 relative z-10">
         {messages.length === 0 ? (
           <div className="max-w-2xl mx-auto text-center mt-20 p-8 border border-dashed border-zinc-850 bg-zinc-900/10 rounded-3xl select-none">
             <div className="w-14 h-14 bg-violet-500/10 border border-violet-500/20 text-violet-400 rounded-2xl flex items-center justify-center mx-auto mb-6">
@@ -298,7 +308,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onSelectPDFPage })
       </div>
 
       {/* Input Form Footer */}
-      <footer className="p-6 border-t border-zinc-900 bg-zinc-950/40 shrink-0 relative z-10">
+      <footer className="p-4 md:p-6 border-t border-zinc-900 bg-zinc-950/40 shrink-0 relative z-10">
         <form onSubmit={handleSend} className="max-w-3xl mx-auto flex gap-3 relative">
           <input
             type="text"

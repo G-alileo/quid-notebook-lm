@@ -10,14 +10,16 @@ import {
   HelpCircle,
   RefreshCw,
   Clock,
-  MessageSquare
+  MessageSquare,
+  Menu
 } from 'lucide-react';
 
 interface StudioInterfaceProps {
   sources: DocumentResponse[];
+  onOpenMenu?: () => void;
 }
 
-export const StudioInterface: React.FC<StudioInterfaceProps> = ({ sources }) => {
+export const StudioInterface: React.FC<StudioInterfaceProps> = ({ sources, onOpenMenu }) => {
   const [selectedSource, setSelectedSource] = useState('');
   const [style, setStyle] = useState('Deep Dive');
   const [length, setLength] = useState('Medium (3-5 mins)');
@@ -142,12 +144,23 @@ export const StudioInterface: React.FC<StudioInterfaceProps> = ({ sources }) => 
   };
 
   return (
-    <div className="p-8 max-w-4xl mx-auto space-y-8 select-none">
-      <div>
-        <h1 className="text-3xl font-bold text-white tracking-tight m-0">Podcast Studio</h1>
-        <p className="text-zinc-400 mt-2 text-sm">
-          Convert your static documents and reports into a fully voiced, multi-speaker audio conversation podcast script.
-        </p>
+    <div className="p-4 md:p-8 max-w-4xl mx-auto space-y-6 md:space-y-8 select-none">
+      <div className="flex items-center gap-3.5">
+        {onOpenMenu && (
+          <button
+            type="button"
+            onClick={onOpenMenu}
+            className="lg:hidden text-zinc-400 hover:text-white p-2 hover:bg-zinc-900 rounded-xl transition-all cursor-pointer shrink-0"
+          >
+            <Menu className="w-6 h-6" />
+          </button>
+        )}
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight m-0">Podcast Studio</h1>
+          <p className="text-zinc-400 mt-2 text-xs md:text-sm">
+            Convert your static documents and reports into a fully voiced, multi-speaker audio conversation podcast script.
+          </p>
+        </div>
       </div>
 
       {errorMsg && (

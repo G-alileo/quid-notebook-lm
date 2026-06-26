@@ -55,7 +55,22 @@ class APIClient {
       let errorMsg = 'An error occurred';
       try {
         const errJson = await response.json();
-        errorMsg = errJson.detail || errJson.message || errorMsg;
+        if (errJson.detail) {
+          if (Array.isArray(errJson.detail)) {
+            errorMsg = errJson.detail
+              .map((err: any) => {
+                const field = err.loc && err.loc.length > 0 ? err.loc[err.loc.length - 1] : 'field';
+                return `${field}: ${err.msg}`;
+              })
+              .join(', ');
+          } else if (typeof errJson.detail === 'object') {
+            errorMsg = JSON.stringify(errJson.detail);
+          } else {
+            errorMsg = errJson.detail;
+          }
+        } else {
+          errorMsg = errJson.message || errorMsg;
+        }
       } catch {
         try {
           errorMsg = await response.text();
