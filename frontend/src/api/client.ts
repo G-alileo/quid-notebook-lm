@@ -1,4 +1,4 @@
-const BASE_URL = window.location.port === '5173'
+const BASE_URL = import.meta.env.DEV
   ? 'http://localhost:8000'
   : '';
 
