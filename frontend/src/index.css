@@ -5,6 +5,12 @@
   --font-sans: 'Outfit', system-ui, -apple-system, sans-serif;
   --color-violet-500: #8b5cf6;
   --color-violet-600: #7c3aed;
+  --animate-wave-bar: wave-bar 1.2s ease-in-out infinite;
+
+  @keyframes wave-bar {
+    0%, 100% { height: 4px; }
+    50% { height: 20px; }
+  }
 }
 
 body {

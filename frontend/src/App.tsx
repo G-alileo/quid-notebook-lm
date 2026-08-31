@@ -12,8 +12,7 @@ import {
   Database, 
   FileText, 
   Mic, 
-  MessageSquare,
-  Menu
+  MessageSquare
 } from 'lucide-react';
 
 function App() {
