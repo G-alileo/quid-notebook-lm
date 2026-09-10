@@ -1,26 +1,96 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@theme {
+  --color-pearl: #f6f3f4;
+  --color-surface: #fafafa;
+  --color-ink: #1d1618;
+  --color-ink-2: #5d474c;
+  --color-ink-3: #816a6f;
+  --color-line: #e9e2e4;
+  --color-line-2: #dbd1d3;
+  --color-accent: #4c393d;
+  --color-accent-deep: #2c2527;
+  --color-accent-soft: #e9e2e4;
+}
+
+@utility shadow-card {
+  box-shadow:
+    0 1px 2px rgb(13 7 8 / 0.04),
+    0 4px 16px rgb(13 7 8 / 0.06);
+}
+
+@utility shadow-pop {
+  box-shadow:
+    0 2px 6px rgb(13 7 8 / 0.06),
+    0 16px 40px rgb(13 7 8 / 0.12);
+}
+
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@utility reading-block {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 6rem;
+}
+
+.auth-silk {
+  position: absolute;
+  inset: 0;
+}
+
+@media (min-width: 1024px) {
+  .auth-silk {
+    left: 50%;
+    top: 50%;
+    width: 100vh;
+    height: 100vw;
+    transform: translate(-50%, -50%) rotate(90deg);
   }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  background-color: var(--color-pearl);
+  color: var(--color-ink);
+  font-feature-settings: 'cv11', 'ss01';
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: rgb(76 57 61 / 0.18);
+  color: var(--color-ink);
+}
+
+:focus-visible {
+  outline: 2px solid rgb(76 57 61 / 0.5);
+  outline-offset: 2px;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(29 22 24 / 0.2) transparent;
+}
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgb(29 22 24 / 0.16);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(29 22 24 / 0.28);
 }

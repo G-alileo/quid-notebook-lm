@@ -1,0 +1,9 @@
+services:
+  extractor:
+    build: .
+    ports:
+      - "8100:8100"
+    environment:
+      CHUNK_SIZE: "1000"
+      CHUNK_OVERLAP: "200"
+    restart: unless-stopped

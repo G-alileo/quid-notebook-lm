@@ -1,0 +1,961 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "quid-w1-ingest",
+        "options": {}
+      },
+      "id": "22d1c35a-1f30-4d7b-86d2-71b41519b4fe",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -528,
+        1136
+      ],
+      "webhookId": "quid-w1-ingest"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f1",
+              "leftValue": "={{ $json.body.type }}",
+              "rightValue": "INSERT",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "f2",
+              "leftValue": "={{ $json.body.record.status }}",
+              "rightValue": "pending",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "6fb9a206-f9c8-4007-abbe-0838d046158e",
+      "name": "Only pending",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        -304,
+        1136
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "s1",
+                    "leftValue": "={{ $json.body.record.type }}",
+                    "rightValue": "pdf",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  },
+                  {
+                    "id": "s2",
+                    "leftValue": "={{ $json.body.record.type }}",
+                    "rightValue": "text",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "or"
+              },
+              "renameOutput": true,
+              "outputKey": "file"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "s3",
+                    "leftValue": "={{ $json.body.record.type }}",
+                    "rightValue": "url",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "url"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "s4",
+                    "leftValue": "={{ $json.body.record.type }}",
+                    "rightValue": "youtube",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "youtube"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "s5",
+                    "leftValue": "={{ $json.body.record.type }}",
+                    "rightValue": "audio",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "audio"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b320e04e-8149-4019-a19b-f4f21dc0b3f1",
+      "name": "By type",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -80,
+        1104
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://egemmkssgdhsdyjpsuzo.supabase.co/storage/v1/object/uploads/{{ $json.body.record.storage_path }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          },
+          "timeout": 120000
+        }
+      },
+      "id": "a326b777-253c-4740-9b15-48ad43abdb99",
+      "name": "Download file",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1040,
+        288
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "ynxMdmPOuQnOUQ4J",
+          "name": "Supabase account 7"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "p1",
+                    "leftValue": "={{ $('Download file').first().binary.data.fileName.toLowerCase().endsWith('.pdf') }}",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "pdf"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "w1-is-pdf",
+      "name": "PDF?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        1264,
+        176
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "id": "w1-pdf-text",
+      "name": "Extract PDF text",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        1488,
+        96
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const CHUNK_SIZE = 1000;\nconst CHUNK_OVERLAP = 200;\n\nfunction fnv1a(str) {\n  let h = 0x811c9dc5;\n  for (let i = 0; i < str.length; i++) {\n    h ^= str.charCodeAt(i);\n    h = Math.imul(h, 0x01000193) >>> 0;\n  }\n  return h.toString(16).padStart(8, '0');\n}\n\nfunction decodeBinary(binary) {\n  if (!binary || !binary.data || !binary.data.data) return null;\n  const buf = Buffer.from(binary.data.data, 'base64');\n  let text;\n  try {\n    text = buf.toString('utf8');\n  } catch (e) {\n    text = buf.toString('latin1');\n  }\n  if (/^%PDF/.test(text) || /[\\u0000-\\u0008\\u000e-\\u001f]/.test(text.slice(0, 2000))) {\n    throw new Error('binary payload reached Chunk content: PDF text extraction did not run for this item');\n  }\n  return text;\n}\n\nfunction makeChunks(text, sourceFile, sourceType, pageNumber, startIndex) {\n  const chunks = [];\n  let start = 0;\n  let index = startIndex;\n  while (start < text.length) {\n    let end = Math.min(start + CHUNK_SIZE, text.length);\n    if (end < text.length) {\n      const cand = Math.max(text.lastIndexOf('.', end - 1), text.lastIndexOf('\\n', end - 1));\n      if (cand >= start && cand > start + CHUNK_SIZE * 0.5) end = cand + 1;\n    }\n    const content = text.slice(start, end).trim();\n    if (content) {\n      const meta = {\n        source_file: sourceFile,\n        source_type: sourceType,\n        chunk_index: index,\n        start_char: start,\n        end_char: end - 1\n      };\n      if (pageNumber) meta.page_number = pageNumber;\n      meta.chunk_id = sourceType + '_' + index + '_' + fnv1a(content);\n      chunks.push({ content: content, meta: meta });\n      index++;\n    }\n    start = Math.max(start + CHUNK_SIZE - CHUNK_OVERLAP, end);\n    if (start >= text.length) break;\n  }\n  return chunks;\n}\n\nconst record = $('Webhook').first().json.body.record;\nconst items = $input.all();\nconst chunks = [];\nconst pages = [];\n\nfor (let i = 0; i < items.length; i++) {\n  const j = items[i].json;\n  let text = null;\n  if (j.content !== undefined) text = j.content;\n  else if (j.text !== undefined) text = j.text;\n  else if (j.data && j.data.markdown !== undefined) text = j.data.markdown;\n  if (text === null) text = decodeBinary(items[i].binary);\n  if (text === null || !String(text).trim()) continue;\n  text = String(text);\n  pages.push(text.trim());\n  const pageNumber = record.type === 'pdf' ? i + 1 : undefined;\n  const made = makeChunks(text, record.name, record.type, pageNumber, chunks.length);\n  for (const c of made) chunks.push(c);\n}\n\nif (chunks.length === 0) throw new Error('no extractable text found');\nreturn [{ json: { chunks: chunks, full_text: pages.join('\\n\\n') } }];"
+      },
+      "id": "w1-chunk",
+      "name": "Chunk content",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1712,
+        288
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.firecrawl.dev/v1/scrape",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ url: $json.body.record.source_url, formats: ['markdown'] }) }}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "id": "2987316c-7f8c-43fc-9b64-f45f148fe418",
+      "name": "Scrape URL",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1040,
+        656
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "UWSoJNNxEa6tK1p3",
+          "name": "Header Auth account 7"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://egemmkssgdhsdyjpsuzo.supabase.co/storage/v1/object/sign/uploads/{{ $json.body.record.storage_path }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ expiresIn: 3600 }) }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "01d18e87-5d65-4dca-a12b-e009801c344e",
+      "name": "Sign audio URL",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        144,
+        1824
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "ynxMdmPOuQnOUQ4J",
+          "name": "Supabase account 7"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.assemblyai.com/v2/transcript",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ audio_url: $('Webhook').first().json.body.record.source_url }) }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "b2f1ff77-b6d5-43aa-a266-7a016446776a",
+      "name": "Create transcript (YouTube)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        368,
+        1520
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "KQmCixTVqsLup9l5",
+          "name": "assembly"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.assemblyai.com/v2/transcript",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ audio_url: 'https://egemmkssgdhsdyjpsuzo.supabase.co' + $json.signedURL }) }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "5acf1241-13ae-4540-9022-0db517da231a",
+      "name": "Create transcript (Audio)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        368,
+        1728
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "KQmCixTVqsLup9l5",
+          "name": "assembly"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.assemblyai.com/v2/transcript/{{ $json.id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "7c1b5167-a2b6-4882-a498-785353541f7b",
+      "name": "Get transcript",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        592,
+        1376
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "KQmCixTVqsLup9l5",
+          "name": "assembly"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "i1",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "error",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "6399599a-4e2d-49f4-8a32-4a84bdd9943c",
+      "name": "Transcript failed?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        816,
+        1104
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "i2",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "completed",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "8912cdd1-6ad7-4bc7-9365-b2710b4613c8",
+      "name": "Transcript done?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1040,
+        1040
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "id": "68c7ea67-cd70-435b-812b-a7bb54f811b2",
+      "name": "Wait 10s",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1264,
+        1104
+      ],
+      "webhookId": "b10215fa-4a8f-42a4-853a-41c9b902d8b1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const CHUNK_LIMIT = 96;\nconst record = $('Webhook').first().json.body.record;\nconst out = [];\nfor (const item of $input.all()) {\n  const chunks = item.json.chunks ?? [];\n  for (let i = 0; i < chunks.length; i += CHUNK_LIMIT) {\n    const slice = chunks.slice(i, i + CHUNK_LIMIT);\n    out.push({ json: { docId: record.id, userId: record.user_id, fullText: item.json.full_text ?? '', chunks: slice, texts: slice.map((c) => c.content) } });\n  }\n}\nif (out.length === 0) throw new Error('no chunks to embed');\nreturn out;"
+      },
+      "id": "1b059d40-ab09-462f-b0d0-71506ded848f",
+      "name": "Prepare batches",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1488,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.cohere.com/v1/embed",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "cohereApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: 'embed-multilingual-v3.0', input_type: 'search_document', texts: $json.texts }) }}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "id": "7280ab6b-2278-4e2e-a175-00a555fb7fcb",
+      "name": "Embed chunks",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1712,
+        80
+      ],
+      "credentials": {
+        "cohereApi": {
+          "id": "fueZhPv1ZhXdUCRa",
+          "name": "Cohere account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const preparedAll = $('Prepare batches').all();\nconst embedAll = $input.all();\nconst rows = [];\nfor (let k = 0; k < embedAll.length; k++) {\n  const prepared = preparedAll[k].json;\n  const embeddings = embedAll[k].json.embeddings ?? [];\n  prepared.chunks.forEach((chunk, i) => {\n    if (!embeddings[i]) throw new Error('embedding count mismatch');\n    rows.push({ content: chunk.content, embedding: '[' + embeddings[i].join(',') + ']', meta: chunk.meta });\n  });\n}\nconst first = preparedAll[0].json;\nreturn [{ json: { docId: first.docId, userId: first.userId, count: rows.length, fullText: first.fullText ?? '', rowsJson: JSON.stringify(rows) } }];"
+      },
+      "id": "502659de-1f3a-4a9d-9bad-54f51cf58c49",
+      "name": "Build rows",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1936,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO chunks (document_id, user_id, content, embedding, meta)\nSELECT $1::uuid, $2::uuid, elem->>'content', (elem->>'embedding')::vector, (elem->>'meta')::jsonb\nFROM jsonb_array_elements($3::jsonb) AS elem",
+        "options": {
+          "queryReplacement": "={{ $json.docId }},{{ $json.userId }},{{ $json.rowsJson }}"
+        }
+      },
+      "id": "3b7902b2-b87d-46cd-b5ba-73d442711979",
+      "name": "Insert chunks",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        2160,
+        0
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "j2Qu0YvTq4CMIguf",
+          "name": "Postgres account 4"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE documents SET status = 'ready', chunk_count = $2, content = $3 WHERE id = $1",
+        "options": {
+          "queryReplacement": "={{ $('Build rows').first().json.docId }},{{ $('Build rows').first().json.count }},{{ $('Build rows').first().json.fullText }}"
+        }
+      },
+      "id": "2748aade-dbb8-4720-8035-62aa43bc1108",
+      "name": "Mark ready",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        2384,
+        -48
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "j2Qu0YvTq4CMIguf",
+          "name": "Postgres account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE documents SET status = 'failed', error = $2 WHERE id = $1",
+        "options": {
+          "queryReplacement": "={{ $('Webhook').first().json.body.record.id }},{{ ($json.error && $json.error.message) || 'ingestion failed' }}"
+        }
+      },
+      "id": "49273c47-a5ea-4ee9-9a18-bc240f85ba3a",
+      "name": "Mark failed",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        2384,
+        816
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "j2Qu0YvTq4CMIguf",
+          "name": "Postgres account 4"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Only pending",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Only pending": {
+      "main": [
+        [
+          {
+            "node": "By type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "By type": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Scrape URL",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create transcript (YouTube)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Sign audio URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "PDF?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PDF?": {
+      "main": [
+        [
+          {
+            "node": "Extract PDF text",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Chunk content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract PDF text": {
+      "main": [
+        [
+          {
+            "node": "Chunk content",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scrape URL": {
+      "main": [
+        [
+          {
+            "node": "Chunk content",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sign audio URL": {
+      "main": [
+        [
+          {
+            "node": "Create transcript (Audio)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create transcript (YouTube)": {
+      "main": [
+        [
+          {
+            "node": "Get transcript",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create transcript (Audio)": {
+      "main": [
+        [
+          {
+            "node": "Get transcript",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get transcript": {
+      "main": [
+        [
+          {
+            "node": "Transcript failed?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcript failed?": {
+      "main": [
+        [
+          {
+            "node": "Mark failed",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Transcript done?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcript done?": {
+      "main": [
+        [
+          {
+            "node": "Chunk content",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait 10s",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 10s": {
+      "main": [
+        [
+          {
+            "node": "Get transcript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chunk content": {
+      "main": [
+        [
+          {
+            "node": "Prepare batches",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare batches": {
+      "main": [
+        [
+          {
+            "node": "Embed chunks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embed chunks": {
+      "main": [
+        [
+          {
+            "node": "Build rows",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build rows": {
+      "main": [
+        [
+          {
+            "node": "Insert chunks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert chunks": {
+      "main": [
+        [
+          {
+            "node": "Mark ready",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8f351f8f18f69574a46094a253f36ef0804528a7fc6d1eee81ee60e356860359"
+  }
+}
